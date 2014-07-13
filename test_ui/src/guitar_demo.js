@@ -1,4 +1,4 @@
-var pianoApp = angular.module("PianoProject", ["ngRoute"]);
+var guitarDemo = angular.module("GuitarDemo", ["ngRoute"]);
 
 ////////////////////////////////////////////////////////////////////////////////
 // DIRECTIVES
@@ -8,7 +8,7 @@ var pianoApp = angular.module("PianoProject", ["ngRoute"]);
  * here is a fix found at:
  * https://github.com/angular/angular.js/issues/339#issuecomment-19384664
  */
-pianoApp.directive('embedSrc', function () {
+guitarDemo.directive('embedSrc', function () {
   return {
     restrict: 'A',
     link: function (scope, element, attrs) {
@@ -24,13 +24,11 @@ pianoApp.directive('embedSrc', function () {
   };
 });
 
-
-
 ////////////////////////////////////////////////////////////////////////////////
 //MIDI PubSub router
 ////////////////////////////////////////////////////////////////////////////////
 //TODO add the unsubscribe methods!!!! (not needed for the moment, but should be done later
-pianoApp.service('pubSubMIDI', [function() {
+guitarDemo.service('pubSubMIDI', [function() {
     
     //a simple register in the form: key: [list of callbacks]
     this.self = this;
@@ -129,7 +127,7 @@ pianoApp.service('pubSubMIDI', [function() {
 //TODO add flash fallback (if flash module is available)
 
 ////////////////////////////////////////////////////////////////////////////////
-pianoApp.service('micCaptureService', ['$timeout', 'pubSubMIDI', function($timeout, pubSubMIDI) {
+guitarDemo.service('micCaptureService', ['$timeout', function($timeout) {
 
     /*
     For this service ONLY
@@ -178,6 +176,10 @@ pianoApp.service('micCaptureService', ['$timeout', 'pubSubMIDI', function($timeo
     
     //current midi states:
     self.notesStatus = [];
+    
+    //store 
+    self.MAX_LEN_NOTES_BUFFER = 3;
+    self.notesBuffer = [0];
 
     ////////////////////////////////////////////////////////////////////////////////
     //constants TODO make this parametrable
@@ -187,33 +189,21 @@ pianoApp.service('micCaptureService', ['$timeout', 'pubSubMIDI', function($timeo
     self.buf = new Uint8Array( buflen );
 
     self.MINVAL = 134;  // 128 == zero.  MINVAL is the "minimum detected signal" level.
-    self.MIN_CONFIDENCE = 10;  //confidence in the detection
+    //self.MIN_CONFIDENCE = 10;  //confidence in the detection
+    self.MIN_CONFIDENCE = 30;  //confidence in the detection
     self.MIN_RMS = 0.01;
     self.MIN_BEST_CORR = 0.01;
 
-
+    self.callback = null;
+    //reister a callback to make on each detection
+    this.registerCallback = function(scope, callback){
+        console.log("registering callback");
+        self.callback = scope[callback];
+    };
+    
     //TODO change this for a better description (use the one in my AS3 code)
     self.noteStrings = ["C", "C#", "D", "D#", "E", "F", "F#", "G", "G#", "A", "A#", "B"];
 
-
-    //things to be able to play
-    //TODO make the calls more general, although for the moment this works
-    self.playNote= function(midi_id){
-        console.log("calling midi service note on: ", midi_id);
-        if(! self.notesStatus[midi_id] === true){
-            self.notesStatus[midi_id] = true;
-            MIDI.noteOn(0, midi_id, 127, 0);
-        }
-    };
-    
-    self.stopNote= function(midi_id){
-        console.log("calling midi service note off from pitch detectr: ", midi_id);
-        if(self.notesStatus[midi_id] === true){
-            self.notesStatus[midi_id] = false;
-            MIDI.noteOff(0, midi_id, 0);
-        }
-        
-    };
     ////////////////////////////////////////////////////////////////////////////////
     //Capturing mic
     ////////////////////////////////////////////////////////////////////////////////
@@ -311,7 +301,7 @@ pianoApp.service('micCaptureService', ['$timeout', 'pubSubMIDI', function($timeo
      	if (self.confidence < self.MIN_CONFIDENCE) {
      	    //ehmm non confident
      	    //TODO do something about it
-     	    console.log("no confidence for pitch: ", self.currentPitch);
+     	    //console.log("no confidence for pitch: ", self.currentPitch);
      	} else {
      	    //TODO post process to filter out errors and peaks
          	var note =  noteFromPitch( self.currentPitch );
@@ -325,9 +315,33 @@ pianoApp.service('micCaptureService', ['$timeout', 'pubSubMIDI', function($timeo
      	        "note": note
      	        };
             //send signal out of worker
-            console.log("detected note is: ", note, self.currentPitch);
-            console.log("playing note");
-            self.playNote(note);
+            //console.log("detected note is: ", ret);
+            //TODO finish this, is for avoiding jitter in the detection
+            //console.log("pushing note to the buffer and keep it with the max lenght");
+            if (self.notesBuffer.push(note) > self.MAX_LEN_NOTES_BUFFER){
+                
+                //console.log('popping', self.notesBuffer, self.notesBuffer.length);
+                self.notesBuffer.shift();
+            }
+            
+            var send = true;
+            //TODO see here, this are arbitrary values that might work well for a guitar
+            if ( note >= 85 || note <= 35){
+                send = false;                
+            }
+            if (send){
+                for(var i = 0; i < self.notesBuffer.length; i++){
+                    if (self.notesBuffer[i] !== note){
+                        //console.log('not send', self.notesBuffer[i], note);
+                        send = false;
+                        break;
+                    }
+                }
+            }
+            if (send){
+                //console.log("calling back");
+                self.callback(ret);
+            }
         }
         //this periodic call MUST be called from here
         self.timeoutObj = $timeout(self.updatePitch, 50);
@@ -360,7 +374,7 @@ pianoApp.service('micCaptureService', ['$timeout', 'pubSubMIDI', function($timeo
 
     // this is not working on a web worker...
     self.init = function(){
-        console.log("setting up audio context");
+        //console.log("setting up audio context");
         window.AudioContext = window.AudioContext || window.webkitAudioContext;
 
         self.audioContext = new AudioContext();
@@ -390,7 +404,7 @@ pianoApp.service('micCaptureService', ['$timeout', 'pubSubMIDI', function($timeo
 ////////////////////////////////////////////////////////////////////////////////
 //service wrapper for MIDI.js
 ////////////////////////////////////////////////////////////////////////////////
-pianoApp.service('midiService', ['pubSubMIDI', function(pubSubMIDI) {
+guitarDemo.service('midiService', ['pubSubMIDI', function(pubSubMIDI) {
     //console.log("creating midiService");
     ////////////////////
     //TODO take this hardcoded thing away and add the possibility to change keyboard layout!
@@ -443,7 +457,7 @@ pianoApp.service('midiService', ['pubSubMIDI', function(pubSubMIDI) {
 ////////////////////////////////////////////////////////////////////////////////
 // midi recording service
 ////////////////////////////////////////////////////////////////////////////////
-pianoApp.service('midiRecorderService', ['pubSubMIDI', function(pubSubMIDI) {
+guitarDemo.service('midiRecorderService', ['pubSubMIDI', function(pubSubMIDI) {
     this.self = this;
     this.recording = [];
     //this.state (playing/recording/etc)
@@ -479,495 +493,64 @@ pianoApp.service('midiRecorderService', ['pubSubMIDI', function(pubSubMIDI) {
     pubSubMIDI.subscribeAnyNoteOff(this, "noteOff");
 }]);
 
-////////////////////////////////////////////////////////////////////////////////
-// Simple Player Service
-////////////////////////////////////////////////////////////////////////////////
-// Tempos: 
-// 1 semifusa
-// 2 fusa
-// 4 semi corchea
-// 8 corchea
-// 16 negra
-// 32 blanca
-// 64 redonda
-//
-
-
-pianoApp.service('simplePlayer', ['$timeout', 'pubSubMIDI', function($timeout, pubSubMIDI) {
-
-    this.self = this;
-    var self = this;
-    //simple player that plays a secuence of notes in the format:
-    self.sequence = [];
-    //default bpm
-    self.bpm = 60;
-    //16 is the code for black key
-    self.tempoMultiplier = (1000 * self.bpm) / (60 * 16);
-    
-    self.playNext = function(index){
-        console.log("play next: ",index)
-        idxOff = index - 1;
-        //turn off previous note
-        if(idxOff>=0 && idxOff < self.sequence.length){
-            pubSubMIDI.publishNoteOff(self.sequence[idxOff][0]);
-        }
-        
-        if(index < self.sequence.length){
-            //play note 
-            note = self.sequence[index][0];
-            playTime = self.sequence[index][2] * self.tempoMultiplier;
-            //play next note
-            pubSubMIDI.publishNoteOn(note);
-            //TODO wait play time
-            //note OFF will be called on the callback
-            $timeout(function(){
-                    //console.log("calling timeout callback: ", $scope);
-                    console.log(this)
-                    self.playNext(index+1);
-                    }, 
-                    playTime
-                    );
-        }else{
-            console.log("play sequence finished");
-            //finished playing
-            //callback to the caller!
-            self.callback();
-            //$scope.fini        
-        }
-    };
-    
-    self.setbpm = function(bpm){
-        self.bpm = bpm;
-        self.tempoMultiplier = (1000 * self.bpm) / (60 * 16);
-    };
-    
-    self.play = function(sequence, callbackScope, callbackFunctionName){
-    //self.play = function(sequence){
-        //set sequence
-        self.sequence = sequence;
-        //set callback
-        self.callback = callbackScope[callbackFunctionName];
-        self.playNext(0);
-    };
-    
-}]);
-
-
-////////////////////////////////////////////////////////////////////////////////
-//Keyboard mapper sevices
-////////////////////////////////////////////////////////////////////////////////
-pianoApp.service('keyboardService', ['pubSubMIDI', function(pubSubMIDI) {
-    ////////////////////
-    //TODO take this hardcoded thing away and add the possibility to change keyboard layout!
-    this.self = this;
-    var layout = LeosPiano.KeyboardMappings.fr['A'];
-    var keys_ids = _.range(45, 72);
-    
-    this.mappings = {};
-    for(var i=0; i < keys_ids.length; i++){
-        this.mappings[layout[i]] = keys_ids[i];
-        
-    }
-    
-    //console.log('initialized kbservice with mapping: ', this.mappings);
-    //END hardcoded
-    ////////////////////
-    
-        this.setLayout= function(layout, beginNoteName, beginMidiId){
-            //TODO make the mappings
-            //console.log('setting layout: ',layout);
-        };
-        
-        //return the current layout
-        this.getLayout= function(){
-            //TODO
-        };
-        
-        this.keyPressed= function(event){
-            //console.log('key pressed in kbservice: ',event.keyCode);
-            //map keyCode to char:
-            var keyChar = LeosPiano.KeyCodeMappings[event.keyCode];
-            var note = this.mappings[keyChar.toLowerCase()];
-            //TODO map to midi_id
-            pubSubMIDI.publishNoteOn(note);
-        };
-        this.keyReleased= function(event){
-            //console.log('key released in kbservice: ',event.keyCode);
-            var keyChar = LeosPiano.KeyCodeMappings[event.keyCode];
-            var note = this.mappings[keyChar.toLowerCase()];
-            pubSubMIDI.publishNoteOff(note); //TODO take out the hardcoded
-        };
-}]);
-
-
-
-pianoApp.controller('layoutSelectorController', ['$scope', 'keyboardService', function($scope,  kbService) {
-    
-    //TODO put current layout
-    //TODO on change selection, change the kbService layout!
-    
-  }]);
-  
-
-pianoApp.directive('layoutSelectorDirective', ['keyboardService', function(kbService){
-    
-    //console.log("starting keyboard Selector");
-
-    /*function link(scope, element, attrs) {
-        console.log("starting keyboard selector link");
-        //TODO get list of layouts
-        //give the predefined options
-    }*/
-
-    
-    return{
-        //link: link,
-        templateUrl: 'templates/layoutSelector.html'  //TODO make the template
-        }
-
-    }]);
-    
-
-
-////////////////////////////////////////////////////////////////////////////////
-// Microphone capture
-////////////////////////////////////////////////////////////////////////////////
-pianoApp.controller('micCaptureController', ['$scope', 'micCaptureService', function($scope,  micService) {
-    
-    //TODO put current layout
-    //TODO on change selection, change the kbService layout!
-    $scope.note = {};
-    
-    //
-    $scope.start = function(){
-        console.log("starting service");
-        console.log(micService);
-        micService.start();
-    };
-    //
-    $scope.stop = function(){
-        micService.stop();
-    };
-    
-    //TODO force start for testing, TODO erase this line
-    $scope.start();
-  }]);
-  
-pianoApp.directive('micCaptureControlsDirective', ['$scope', function($scope){
-    return{
-        templateUrl: 'templates/mic_controls.html'  //TODO make the template
-        }
-    }]);
-
-pianoApp.directive('micCaptureDisplayDirective', ['$scope', function($scope){
-    return{
-        templateUrl: 'templates/mic_simple_display.html'  //TODO make the template
-        }
-    }]);
 
 ////////////////////////////////////////////////////////////////////////////////
 // CONTROLLERS
 ////////////////////////////////////////////////////////////////////////////////
-
-pianoApp.controller('mainController', ['$scope', '$window', 'keyboardService', 'midiService', function($scope, $window, kbService, midiService) {
-    
-    //midiService.init();
-    angular.element($window).on('keydown', function(e) {
-        //console.log("Key down: ", e);
-        //TODO call the keyboard processor
-        //console.log('kbservice = ', kbService);
-        kbService.keyPressed(e);
-    });
-    angular.element($window).on('keyup', function(e) {
-        //console.log("Key up: ", e);
-        //TODO call the keyboard processor
-        kbService.keyReleased(e);
-    });
-    
-  }]);
   
-pianoApp.controller('demoPianoController', ['$scope', function($scope) {
-    //console.log('initializing controller: piano');
-  }]);
-  
-//pianoApp.controller('keyboardController', ['$scope', function($scope) {
-//    console.log('initializing controller: piano keyboard');
-//  }]);
-  
-pianoApp.controller('keyController', ['$scope', 'pubSubMIDI', function($scope, pubSubMidi) {
-    //console.log('initializing controller: piano key');
-    //$scope.lang = window.navigator.userLanguage || window.navigator.language;
-    //the current key state
-    $scope.pressed = false;
-    //$scope.hideKey = ;
-    $scope.hideKeyName = false;
-    $scope.hideKeyLabel = false;
-    //functions
-    //on key pressed - mouse click
-    $scope.keyPressed = function(){
-        //console.log('key pressed: ', $scope.key.midi_id);
-        var prevState = $scope.pressed;
-        $scope.pressed = true;
-        //needed in case the update function is called from PubSub callback
-        if(!$scope.$$phase) {
-            $scope.$apply();
-        }
-        //avoid infinite call loop
-        else{
-            //avoid sending duplicate signal
-            if(!prevState){ 
-                pubSubMidi.publishNoteOn($scope.key.midi_id);
-            }
-        }
-
-    };
-    
-    //on key released
-    $scope.keyReleased = function(){
-    
-        //console.log('key released: ', $scope.key.midi_id);
-        var prevState = $scope.pressed;
-        $scope.pressed = false;
-        //needed in case the update function is called from PubSub callback
-        if(!$scope.$$phase) {
-            $scope.$apply();
-        }
-        //avoid infinite call loop
-        else{
-            //avoid sending duplicate signal
-            if(prevState){ 
-                pubSubMidi.publishNoteOff($scope.key.midi_id);
-            }
-        }
-
-    };
-    /////////////////////////////////////////////////////////////    
-    //Register callbacks:
-    pubSubMidi.subscribeOnNoteOn($scope.key.midi_id, $scope, "keyPressed");
-    pubSubMidi.subscribeOnNoteOff($scope.key.midi_id, $scope, "keyReleased");
-    /////////////////////////////////////////////////////////////
-    /////////////////////////////////////////////////////////////
-  }]);
-
-pianoApp.controller('demoGuitarController', ['$scope', function($scope) {
-    console.log('initializing controller: guitar');
-  }]);
-
-pianoApp.controller('demoVoiceController', ['$scope', function($scope) {
-    console.log('initializing controller: voice');
-  }]);
-
-//TODO make this more generic instead of all hardcoded
-pianoApp.controller('keyboardController', ['$scope', function($scope) {
-    //////////////////////////////////////
-    //TODO take out this hardcoded thing
-    //console.log("starting keyboard controller");
-    //var keys_ids = _.range(48, 72); //2 octaves
-    //var keys_ids = _.range(36, 72); //3 octaves
-    var keys_ids = _.range(45, 72); //2 octaves and 3 keys //leave it this way until made generic if not the keyboard layout will break
-    $scope.keys = _.map(keys_ids, function(value, key, list){ return LeosPiano.Notes.notes[value];});
-    //END todo
-    ///////////////////////////////
-    
-    //get language  // warning, it does not detect the keyboard, but the 
-    //computer setup laguage, this should work for most cases but not for all 
-    //give user the option to change keyboard layout
-    //$scope.lang = window.navigator.userLanguage || window.navigator.language;
-    //TODO make this more generic instead of hardcoded
-    //default layout is french, and starting in LA, assuming the range (45,72)
-    $scope.layout = LeosPiano.KeyboardMappings.fr['A'];
-
-    /*if( $scope.lang.search('en') >= 0 || $scope.lang.search('EN') >= 0 ){
-        $scope.layout = LeosPiano.KeyboardMappings.en['A'];
-    }else 
-    if( $scope.lang.search('fr') >= 0 || $scope.lang.search('FR') >= 0 ){
-        $scope.layout = LeosPiano.KeyboardMappings.fr['A'];
-    }*/
-    //console.log("layout = ", $scope.layout);
-    //console.log("lang = ", $scope.lang);
-    //console.log('keys =', $scope.keys);
-    
-    
-    ////////////////////////////////////////////////////////////////////////////
-    //WARNING this is an ugly hack but I can't see how to do it elsewhere
-    ipos = {top: 0, left: 0};
-    var xpos = 0;
-    var syn = MusicTheory.Synesthesia.data["Steve Zieverink (2004)"];
-    
-    for(var i=0; i<$scope.keys.length; i++){
-        var key = $scope.keys[i];
-        //ugly neyboard mapping:
-        key.label = $scope.layout[i];
-        //ugly synesthesia setup
-        var hsl_val = syn[key.number];
-        //convert to RGB
-        var hsl = {H: hsl_val[0], S: hsl_val[1], L:hsl_val[2]};
-        //this transformation is because I've fixed the synesthesic theme already
-        //TODO make it more general to be able to change the synesthesic theme
-        var rgb = Color.Space.HSL_RGB(hsl);
-        rgb = {R:Math.floor(rgb.R), G:Math.floor(rgb.G), B:Math.floor(rgb.B)};
-        //console.log("convertion: ", hsl, " to rgb : ", rgb);
-        key.synesthesia = rgb;
-        //ugly to decide position
-        if(key.key_color == LeosPiano.Notes.WHITE){
-            
-            ipos = {top: 0, left: xpos};
-            key.position = ipos;
-            xpos = xpos + 40;
-        }else{
-            //NOTE should NEVER start with a black key, or this will break
-            ipos = {top: 0, left: xpos -20};
-            key.position = ipos;
-        }
-     //console.log("keys = ", $scope.keys);
-    }
-    //END ugly hack
-    ////////////////////////////////////////////////////////////////////////////
-  }]);
-  
-pianoApp.controller('simonsGameController', ['$scope', '$timeout', 'pubSubMIDI', 'simplePlayer', function($scope, $timeout, pubSubMIDI, simplePlayer) {
+guitarDemo.controller('guitarGameController', ['$scope', '$timeout', 'pubSubMIDI', 'micCaptureService', function($scope, $timeout, pubSubMIDI, micService) {
     ////////////////////
-    //console.log("starting simons game controller");
-    $scope.self = this;
+    console.log("guitar game controller starting");
+    //sound state:
+    $scope.micAllowed = false;
     
-    //feedback to the user
-    $scope.successMusic = []; //TODO
-    $scope.failMusic = []; //TODO
+    //game states
+    $scope.screens = {
+                    0: 'greetings',
+                    1: 'playing',
+                    2: 'fail',
+                    3: 'success'
+                    };
+            
+    $scope.screen = 'greetings';
+    /*
+    $scope.states = {
+                        $scope.screens[0] : {
+                            
+                        },
+                        $scope.screens[1] : {
+                        
+                        },
+                        $scope.screens[2] : {
+                        
+                        },
+                        $scope.screens[3] : {
+                        
+                        }
+                    };
+    */
     
-    //game configuration
-    $scope.bpm = 60;
-    //$scope.
+    $scope.state = '';
     
-    //game status
-    $scope.recording = [];
-    $scope.state = "stopped"; // (playing/recording/stopped)
-    $scope.gameState = "start"; //playing/win/loose/idle
-    
-    //level being played, for the moment is only one note at a time
-    // data = (midi_id, start_time, time_to_play)
-    //TODO add multi-note support
-    $scope.levelData = [
-                        [48,0,12],
-                        [48,12,4],
-                        [50,16,16],
-                        [48,32,16],
-                        [53,48,16],
-                        [52,64,32]
-                        ];
-    //contains only the midi_ids for the data, this allows for faster and easier evaluation
-    $scope.levelDataNotes = [48,48,50,48,53,52];
-    //the name of the level
-    $scope.levelName = "";
-    //current index that is being played until (levels are passed sequentially)
-    $scope.currentIndex = 0;
-    $scope.currentLength = 1;
-    //set level data
-    $scope.setLevelData = function(levelData){
-        $scope.levelData = levelData;
-        //extract data notes only in midi_id:
-        for(var i=0; i< levelData.length; i++){
-            $scope.levelDataNotes.push(levelData[i][0]);
-        }
+    //function to setup as callback to the micService
+    $scope.micReceiverCallback = function(note){
+        if(! $scope.micAllowed){
+            $scope.micAllowed = true;
+        };
+        console.log("received note = ", note)
     };
-    
-    $scope.playFinished = function(){
-        //TODO change state to recording and start the game
-        console.log("callback ok");
-        $scope.state = "recording";
-        $scope.gameState = "playing";
-    };
+    console.log("starting mic service");
+    console.log(micService);
 
-    $scope.play = function(dataLength){
-        //console.log("playing melody");
-        $scope.state = "playing";
-        $scope.gameState = "playing";
-        //take in account to play everything
-        if (dataLength === null || dataLength === undefined || dataLength === "undefined"){
-            //console.log("setting length because of null");
-            //console.log($scope.levelData);
-            dataLength = $scope.levelData.length;
-            //console.log(dataLength);
-        }
-        
-        var pattern = $scope.levelData.slice(0, dataLength);
-        simplePlayer.play(pattern, $scope, "playFinished");
-
-        
-    };
-    //starts the game
-    $scope.start = function(){
-        //TODO
-        console.log("starting game");
-        //play current level
-        $scope.play(1);
-        //wait for user input
-    };
-    //setup everything for when the exercise starts
-    $scope.record = function(){
-        $scope.state = "recording";
-    }
-    //Stop the play recording
-    $scope.stopRecording = function(){
-        //set recording flag to nothing   
-        $scope.state = "stopped";
-        $scope.gameState = "idle";
-    }
+    micService.registerCallback($scope, 'micReceiverCallback');
+    micService.start();
     
-    //reset recording to clean slate
-    $scope.reset = function(){
-        $scope.recording = [];
-        $scope.currentIndex = 0;
-    }
-
-    //when the game is won
-    $scope.success = function(){
-        //TODO
-        console.log("you win");
-        //present overlay that the person won, and play again (other speed? other level?)
-    };    
-    //when the game is lost
-    $scope.fail = function(){
-        //TODO
-        console.log("you loose");
-        $scope.stopRecording();
-        $scope.reset();
+    $scope.acceptChallenge = function(){
+        //TODO say challenge accepted
+        //TODO wait for the microphone to be active
         
     };
-    //evaluate the performance up to the current moment
-    //midi_id is the current note, 
-    //the evaluation evaluates the whole performance if midi_id is null or undefined
-    $scope.evaluate = function(midi_id){
-        //TODO 
-        // add support for time evaluation, for the moment is a really simple and basic game
-        console.log("evaluating note: ", midi_id);
-        response = $scope.recording.join('');
-        console.log("response = ", response);
-        
-		var pattern = $scope.levelDataNotes.slice(0, $scope.recording.length).join('');
-		console.log("pattern = ", pattern);
-		if( response === pattern && $scope.recording.length === $scope.levelDataNotes.length) {
-		    console.log("you are a winner!");
-			$scope.stopRecording();
-			$scope.success();
-		} else if ( response === pattern && $scope.recording.length === $scope.currentLength) {
-		    //console.log("adding a new note");
-		    //add one more note
-		    $scope.currentLength +=1;
-		    $scope.stopRecording();
-		    //clean slate for the recording
-		    $scope.reset();
-		    //start from the begginng, but leaving enough time to actually get the person to react
-		    $timeout(function(){$scope.play($scope.currentLength)}, 800);
-		}else if ( response !== pattern ) {
-		    console.log('you are a looser!');
-		    //TODO count remaining lives
-		    //if no more
-			$scope.fail();
-			//else:
-			//TODO try again!
-		}
-		//else, we are going OK
-    }
+/*
     //received a note ON event
     //TODO make this happen in the next iteration of the game, when times are taken in account
     $scope.noteOn = function(midi_id){
@@ -998,45 +581,45 @@ pianoApp.controller('simonsGameController', ['$scope', '$timeout', 'pubSubMIDI',
     //TODO reconnect when more advanced features taken in account (tempo for example)
     //pubSubMIDI.subscribeAnyNoteOn($scope, "noteOn");
     pubSubMIDI.subscribeAnyNoteOff($scope, "noteOff");
-    
+*/    
 }]);
 
 
 ////////////////////////////////////////////////////////////////////////////
   
-pianoApp.directive('simonsGame', ['$compile', function($compile) {
+guitarDemo.directive('simonsGame', ['$compile', function($compile) {
     return {
       templateUrl: "templates/simon/simons_game.html"
     };
   }]);
 
-pianoApp.directive('simonsStartScreen', ['$compile', function($compile) {
+guitarDemo.directive('simonsStartScreen', ['$compile', function($compile) {
     return {
       templateUrl: "templates/simon/start_screen.html"
     };
   }]);
 
-pianoApp.directive('simonsEndScreen', ['$compile', function($compile) {
+guitarDemo.directive('simonsEndScreen', ['$compile', function($compile) {
     return {
       templateUrl: "templates/simon/end_screen.html"
     };
   }]);
 
 
-pianoApp.directive('simonsSelectLevel', ['$compile', function($compile) {
+guitarDemo.directive('simonsSelectLevel', ['$compile', function($compile) {
     return {
       templateUrl: "templates/simon/level_select.html"
     };
   }]);
   
-pianoApp.directive('simonsGameStatus', ['$compile', function($compile) {
+guitarDemo.directive('simonsGameStatus', ['$compile', function($compile) {
     return {
       templateUrl: "templates/simon/game_status.html"
     };
   }]);
 ////////////////////////////////////////////////////////////////////////////
   
-pianoApp.directive('keyboard', ['$compile', function($compile) {
+guitarDemo.directive('keyboard', ['$compile', function($compile) {
     //console.log("starting keyboard");
     //console.log("scope keys = ", $scope.keys);
     //var language = window.navigator.userLanguage || window.navigator.language;
@@ -1057,7 +640,7 @@ pianoApp.directive('keyboard', ['$compile', function($compile) {
       templateUrl: "templates/keyboard.html"
     };
   }]);
-pianoApp.directive('key', ['$compile', function($compile) {
+guitarDemo.directive('key', ['$compile', function($compile) {
     //console.log("starting key");
     function link(scope, element, attrs) {
         

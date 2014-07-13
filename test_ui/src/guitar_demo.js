@@ -548,7 +548,8 @@ guitarDemo.controller('guitarGameController', ['$scope', '$timeout', 'pubSubMIDI
     $scope.pcPlays = function(){
         //TODO set recording to pc recording
         //TODO play the level
-        
+        //TODO pass the turn to the user
+        $scope.turn = 'user';
     };
     
     $scope.nextStage = function(){
@@ -610,7 +611,7 @@ guitarDemo.controller('guitarGameController', ['$scope', '$timeout', 'pubSubMIDI
     };
     //function to setup as callback to the micService
     $scope.micReceiverCallback = function(note){
-        if(! $scope.micAllowed){
+        if(!$scope.micAllowed){
             $scope.micAllowed = true;
         }else if($scope.challengeAccepted && $scope.screen === "greetings"){
             $scope.nextState();
@@ -638,6 +639,7 @@ guitarDemo.controller('guitarGameController', ['$scope', '$timeout', 'pubSubMIDI
         //save in cache (note, start_time, some other info?)
         //the following is a basic functionality to be changed when the more advanced one is implemented
         if( $scope.turn == "pc"){
+            //TODO find a way to actually make the timestamp relative to the first note
             $scope.pc_recording.push([midi_id, new Date().getTime(), null]);
         }
     }
@@ -655,7 +657,8 @@ guitarDemo.controller('guitarGameController', ['$scope', '$timeout', 'pubSubMIDI
             //anyway, control it
             var pos = $scope.pc_recording.length - 1;
             if( $scope.pc_recording[pos][0] === midi_id){
-                $scope.pc_recording[pos][2] = new Date().getTime();
+                //record duration
+                $scope.pc_recording[pos][2] = new Date().getTime() - $scope.pc_recording[pos][1];
             }else{
                 console.log("couldn't save the end time for the note: ", midi_id);
             }

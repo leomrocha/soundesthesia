@@ -138,14 +138,10 @@
                         
                     <div id="demo_greeting" ng-show="screen === 'greetings'">
                         <div class="col-xs-4 col-md-4 col-ld-4 image">
-			      		    <a href="/demos/piano_demo.html">
-				      			<img src="images/tabs/pic1.png" class="img-responsive" alt="picture1" />
-			      			</a>
+			      			<img src="images/tabs/pic1.png" class="img-responsive" alt="picture1" />
 			      		</div>    
 			      		<div class="col-xs-8 col-md-8 col-ld-8 info">
-			      			<a href="/demos/piano_demo.html">
-				      			<h4>Hi! Im Stickman</h4>
-			      			</a>
+			      			<h4>Hi! Im Stickman</h4>
 			      			<p>
 			      				I'll play a melody, and you should follow.
 			      			</p>
@@ -153,26 +149,45 @@
 			      				I challenge you!
 			      			</p>
 			      			<p >
-			      				<a class="button" ng-click="acceptChallenge()">Challenge Accepted!</a>
+			      				<a class="button" ng-click="acceptChallenge()" ng-show="!challengeAccepted">Challenge Accepted!</a>
 			      				
 			      			</p>
 			      			<p class="danger" ng-show="!micAllowed">
     			      			<span class="label label-danger">
     			      			<i class="fa fa-play fa-fw"></i>
-    			      			You need to allow the site to access the microphone to play
+    			      			Allow  access to the microphone and play a string to test.
     			      			</span>
 			      			</p>
-			      			
 			      		</div>
 		      		</div>
 			      		
+                    <div id="demo_stats" ng-show="screen === 'game'">
+                        <div class="col-xs-4 col-md-4 col-ld-4 image">
+                            TODO stats image
+			      			<img src="images/tabs/pic1.png" class="img-responsive" alt="picture1" />
+			      		</div>    
+			      		<div class="col-xs-4 col-md-4 col-ld-4 image">
+			      			<p>
+			      				Note Points
+			      			</p>
+			      			<p>
+			      			</p>
+			      		</div>
+			      		<div class="col-xs-4 col-md-4 col-ld-4 image">
+			      			<p>
+			      				Time points:
+			      			</p>
+			      			<p>
+			      			</p>
+			      		</div>
+		      		</div>
 			  		
                         
 				</div>
 				
 				<div class=" col-xs-12 col-md-12 col-ld-12">
 				 TODO here the music sheet
-				 TODO here the 
+				 TODO here the guitar fretboard
 
 				</div>
 			</div>

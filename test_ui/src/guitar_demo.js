@@ -178,7 +178,7 @@ guitarDemo.service('micCaptureService', ['$timeout', function($timeout) {
     self.notesStatus = [];
     
     //store 
-    self.MAX_LEN_NOTES_BUFFER = 3;
+    self.MAX_LEN_NOTES_BUFFER = 1;
     self.notesBuffer = [0];
 
     ////////////////////////////////////////////////////////////////////////////////
@@ -507,7 +507,7 @@ guitarDemo.controller('guitarGameController', ['$scope', '$timeout', 'pubSubMIDI
     //game states
     $scope.screens = {
                     0: 'greetings',
-                    1: 'playing',
+                    1: 'game',
                     2: 'fail',
                     3: 'success'
                     };
@@ -529,14 +529,34 @@ guitarDemo.controller('guitarGameController', ['$scope', '$timeout', 'pubSubMIDI
                         }
                     };
     */
-    
+    $scope.challengeAccepted = false;
     $scope.state = '';
     
+    //this function decides what to do in the game state dynamics
+    //result: is extra data that will help the function to decide what state follows
+    $scope.nextState = function(result){
+        if($scope.screen === "greetings"){
+            $scope.screen = 'game';
+            //
+        }else if($scope.screen === "game"){
+            //TODO   
+        }else if($scope.screen === "fail"){
+            //TODO   
+        }else if($scope.screen === "success"){
+            //TODO   
+        }
+    };
     //function to setup as callback to the micService
     $scope.micReceiverCallback = function(note){
         if(! $scope.micAllowed){
             $scope.micAllowed = true;
-        };
+        }else if($scope.challengeAccepted && $scope.screen === "greetings"){
+            $scope.nextState();
+        }else if($scope.screen === "game"){
+            //TODO   
+            //if state is recording mic input, forward the input to the recorder
+            //if the state is another, do nothing
+        }
         console.log("received note = ", note)
     };
     console.log("starting mic service");
@@ -546,8 +566,7 @@ guitarDemo.controller('guitarGameController', ['$scope', '$timeout', 'pubSubMIDI
     micService.start();
     
     $scope.acceptChallenge = function(){
-        //TODO say challenge accepted
-        //TODO wait for the microphone to be active
+        $scope.challengeAccepted = true;
         
     };
 /*

@@ -141,12 +141,13 @@
 			      			<img src="images/tabs/pic1.png" class="img-responsive" alt="picture1" />
 			      		</div>    
 			      		<div class="col-xs-8 col-md-8 col-ld-8 info">
-			      			<h4>Hi! Im Stickman</h4>
+			      			<h4>Hi!</h4>
 			      			<p>
-			      				I'll play a melody, and you should follow.
+			      				I'll play a melody. Do you dare to follow me.
 			      			</p>
 			      			<p>
-			      				I challenge you!
+			      			    Don't worry if you miss, I'll wait for you to find the right note. <br/>
+			      				This is a note practice, I challenge you!
 			      			</p>
 			      			<p >
 			      				<a class="button" ng-click="acceptChallenge()" ng-show="!challengeAccepted">Challenge Accepted!</a>
@@ -181,10 +182,10 @@
 		          			</p>
 		          		</div>
 		          		<div class="col-xs-3 col-md-3 col-ld-3 image">
-		          			<p ng-show="turn === 'pc'">
+		          			<p class="btn btn-danger" ng-show="turn === 'pc'">
 		          				My turn
 		          			</p>
-		          			<p ng-show="turn === 'user'">
+		          			<p class="btn btn-success" ng-show="turn === 'user'">
 		          			    Your turn
 		          			</p>
 		          		</div>
@@ -238,6 +239,7 @@
     <script src="/src/keys_dimensions.js"></script>
     <script src="/src/keyboard_mappings.js"></script>
     <script src="/src/notes_info.js"></script>
+    <script src="/src/demolevel.js"></script>
     <script src="/src/guitar_demo.js"></script>
 
 

@@ -535,14 +535,73 @@ guitarDemo.controller('guitarGameController', ['$scope', '$timeout', 'pubSubMIDI
     
     $scope.turn = 'pc'; //'pc' or 'user'
     
+    //Level and stage: TODO
+    $scope.level = DemoLevel;
+    $scope.stage = 0;
+    //this keeps the value for vextab to 
+    $scope.vextabLevel = $scope.level[$scope.stage];
+    
+    //recordings
+    $scope.pc_recording = [];
+    $scope.user_recording = [];
+    
+    $scope.pcPlays = function(){
+        //TODO set recording to pc recording
+        //TODO play the level
+        
+    };
+    
+    $scope.nextStage = function(){
+        //cleanup state
+        $scope.turn = 'pc';
+        $scope.stage += 1;
+        $scope.pc_recording = [];
+        $scope.user_recording = [];
+        $scope.vextabLevel = $scope.level[$scope.stage];
+        //launch play
+        $scope.pcPlays();
+    };
+    
+    $scope.playGame = function(){
+        //TODO 
+        //reset vars
+        $scope.stage = -1;
+        $scope.nextStage();
+        
+        //for each stage in the level
+        //  while the guy did not loose or the level didn't finish
+        //      setup all the things to blank (but the points, there we will be incrementing
+        //      setup new music sheet
+        //      set recording pc pattern to true
+        //      play the music sheet
+        //      set recording pc pattern to false
+        //      set turn to user
+        //      for every note received
+        //      compare results
+        //      if OK, increment points
+        //      if not OK, sorry you missed
+        //  if the stage was good, congratulate, say it's my turn
+        //  recover the next stage
+        //  
+        //        
+    };
     //this function decides what to do in the game state dynamics
     //result: is extra data that will help the function to decide what state follows
     $scope.nextState = function(result){
         if($scope.screen === "greetings"){
             $scope.screen = 'game';
-            //
+            $scope.playGame();
         }else if($scope.screen === "game"){
-            //TODO   
+            //TODO close all the things
+            if (result === null || result === 'undefined' || result === undefined){
+                //nothing to do here, move along
+            }else if(result === 'success'){
+                $scope.screen = "sucess";
+                //TODO setup everything
+            }else {
+                $scope.screen = "fail";
+                //TODO setup everything
+            }
         }else if($scope.screen === "fail"){
             //TODO   
         }else if($scope.screen === "success"){
@@ -571,7 +630,6 @@ guitarDemo.controller('guitarGameController', ['$scope', '$timeout', 'pubSubMIDI
         $scope.challengeAccepted = true;
         
     };
-/*
     //received a note ON event
     //TODO make this happen in the next iteration of the game, when times are taken in account
     $scope.noteOn = function(midi_id){
@@ -579,6 +637,9 @@ guitarDemo.controller('guitarGameController', ['$scope', '$timeout', 'pubSubMIDI
         //measure time from the beginning
         //save in cache (note, start_time, some other info?)
         //the following is a basic functionality to be changed when the more advanced one is implemented
+        if( $scope.turn == "pc"){
+            $scope.pc_recording.push([midi_id, new Date().getTime(), null]);
+        }
     }
     
     //received a note OFF event
@@ -589,20 +650,24 @@ guitarDemo.controller('guitarGameController', ['$scope', '$timeout', 'pubSubMIDI
         //save in record (note, start_time, end_time, duration, some other info?)
         //console.log("recording in game note: ", midi_id);
 
-        if( $scope.state == "recording"){
-            $scope.recording.push(midi_id);
-            $scope.currentIndex +=1;
-            //update game status (if the user is OK, won or 
-            $scope.gameStatus = $scope.evaluate(midi_id);
+        if( $scope.turn == "pc"){
+            //assume we ar recording to the last element (only one note at a time)
+            //anyway, control it
+            var pos = $scope.pc_recording.length - 1;
+            if( $scope.pc_recording[pos][0] === midi_id){
+                $scope.pc_recording[pos][2] = new Date().getTime();
+            }else{
+                console.log("couldn't save the end time for the note: ", midi_id);
+            }
         }
         //console.log("end recording");
     }
     //register services
     //console.log(pubSubMIDI);
     //TODO reconnect when more advanced features taken in account (tempo for example)
-    //pubSubMIDI.subscribeAnyNoteOn($scope, "noteOn");
+    pubSubMIDI.subscribeAnyNoteOn($scope, "noteOn");
     pubSubMIDI.subscribeAnyNoteOff($scope, "noteOff");
-*/    
+    
 }]);
 
 

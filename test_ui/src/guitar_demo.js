@@ -519,7 +519,8 @@ guitarDemo.controller('guitarGameController', ['$scope', '$timeout', 'pubSubMIDI
                             
                         },
                         $scope.screens[1] : {
-                        
+                            0: "showing",
+                            1: "recording"
                         },
                         $scope.screens[2] : {
                         
@@ -531,6 +532,8 @@ guitarDemo.controller('guitarGameController', ['$scope', '$timeout', 'pubSubMIDI
     */
     $scope.challengeAccepted = false;
     $scope.state = '';
+    
+    $scope.turn = 'pc'; //'pc' or 'user'
     
     //this function decides what to do in the game state dynamics
     //result: is extra data that will help the function to decide what state follows
@@ -559,9 +562,8 @@ guitarDemo.controller('guitarGameController', ['$scope', '$timeout', 'pubSubMIDI
         }
         console.log("received note = ", note)
     };
-    console.log("starting mic service");
+    //console.log("starting mic service");
     console.log(micService);
-
     micService.registerCallback($scope, 'micReceiverCallback');
     micService.start();
     

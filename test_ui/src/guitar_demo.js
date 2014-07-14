@@ -539,6 +539,7 @@ guitarDemo.controller('guitarGameController', ['$scope', '$timeout', 'pubSubMIDI
     $scope.level = DemoLevel;
     $scope.stage = 0;
     //this keeps the value for vextab to 
+    //$scope.vextabLevel = 
     $scope.vextabLevel = $scope.level[$scope.stage];
     
     //recordings
@@ -676,92 +677,97 @@ guitarDemo.controller('guitarGameController', ['$scope', '$timeout', 'pubSubMIDI
 
 ////////////////////////////////////////////////////////////////////////////
   
-guitarDemo.directive('simonsGame', ['$compile', function($compile) {
-    return {
-      templateUrl: "templates/simon/simons_game.html"
-    };
-  }]);
 
-guitarDemo.directive('simonsStartScreen', ['$compile', function($compile) {
-    return {
-      templateUrl: "templates/simon/start_screen.html"
-    };
-  }]);
+guitarDemo.directive('vextabPaper', ['$compile', function($compile) {
+    //console.log("paper starting")
+    var canvas = document.createElement('canvas');
+    canvas.className = "vex-canvas";
+    var renderer = new Vex.Flow.Renderer( canvas,
+                  //Vex.Flow.Renderer.Backends.RAPHAEL); //TODO support raphael
+                  Vex.Flow.Renderer.Backends.CANVAS);
+    var artist = new Vex.Flow.Artist(10, 10, 600, {scale: 1});
+    var player = null;
+    
+    if (Vex.Flow.Player) {
+        opts = {};
+        //if (options) opts.soundfont_url = options.soundfont_url;
+        player = new Vex.Flow.Player(artist, opts);
+        //do not show default controls - changed to default on the vextab code
+        //player.removeControls();
+    }
+    vextab = new Vex.Flow.VexTab(artist);
 
-guitarDemo.directive('simonsEndScreen', ['$compile', function($compile) {
-    return {
-      templateUrl: "templates/simon/end_screen.html"
-    };
-  }]);
+    function link(scope, element, attrs) {
+        //update parent things:
+        scope.canvas = canvas;
+        scope.artist = artist;
+        scope.vextab = vextab;
+        scope.player = player;
+        
+        var vextabLevel;
+        function updateTab() {
+            console.log("updating tab");
+            console.log(vextabLevel);
+            try {
+                vextab.reset();
+                artist.reset();
 
+                vextab.parse(vextabLevel);
+                artist.render(renderer);
+                //console.log("artist = ", artist);
+            }
+            catch (e) {
+                console.log("Error");
+                console.log(e);
+            }      
+            $compile(canvas)(scope);
+            element.append(canvas);
+            //reposition player because something breaks on the default
+            if(player !== null && player !== undefined){
+                //console.log("player created: ", player);
+                player.fullReset(); //this is what makes the repaint correct
+                playerCanvas = element.find(".vextab-player");
+                scoreCanvas =  element.find(".vex-canvas");
+                //console.log("canvas = ", scoreCanvas);
+                //console.log(scoreCanvas.get(0).offsetTop);
+                //console.log(scoreCanvas.get(0).offsetLeft);
+                //playerCanvas.css("position", "absolute")
+                //            .css("z-index", 10)
+                //            //.css("top", scoreCanvas.get(0).offsetTop)
+                //            //.css("left", scoreCanvas.get(0).offsetLeft)
+                //            .css("top", 45)
+                //            .css("left", 15)
+                //            .css
+                //            ;
+                //playerCanvas.width = ;
+                //update canvas height
+                //console.log(playerCanvas);
+                playerCanvas.height = scoreCanvas.get(0).height;
+                //console.log(playerCanvas);
+                $compile(playerCanvas)(scope);
+            }
+        }
 
-guitarDemo.directive('simonsSelectLevel', ['$compile', function($compile) {
+        scope.$watch(attrs.vextabPaper, function(value) {
+            //console.log("changing vextab text to: ", value);
+            if (!(value !== null && value !== undefined)){
+                value = element.text();
+                element.text("");
+            }
+            vextabLevel = value;
+            updateTab();
+        });
+
+    }
+
     return {
-      templateUrl: "templates/simon/level_select.html"
+        transclude:true,
+        link: link
     };
   }]);
   
-guitarDemo.directive('simonsGameStatus', ['$compile', function($compile) {
-    return {
-      templateUrl: "templates/simon/game_status.html"
-    };
-  }]);
 ////////////////////////////////////////////////////////////////////////////
   
-guitarDemo.directive('keyboard', ['$compile', function($compile) {
-    //console.log("starting keyboard");
-    //console.log("scope keys = ", $scope.keys);
-    //var language = window.navigator.userLanguage || window.navigator.language;
-    //alert(language); //works IE/SAFARI/CHROME/FF
-
-    function link(scope, element, attrs) {
-        //get the computer keyboard layout
-        //console.log("starting keyboard link");
-        //var language = window.navigator.userLanguage || window.navigator.language;
-        //alert(language); //works IE/SAFARI/CHROME/FF
-        //get the beginning and end of the keyboard
-        //generate the keyboard
-    }
-
-    return {
-      link: link,
-      //replace: true,
-      templateUrl: "templates/keyboard.html"
-    };
-  }]);
-guitarDemo.directive('key', ['$compile', function($compile) {
-    //console.log("starting key");
-    function link(scope, element, attrs) {
-        
-        //console.log("element ", element);
-        //console.log("attrs = ", attrs);
-        //console.log(scope.key);
-        width = scope.key.key_color == LeosPiano.Notes.WHITE ? 40 : 30;
-        height = scope.key.key_color == LeosPiano.Notes.WHITE ? 200 : 120;
-        element.width(width);
-        element.height(height);
-        var offset = element.parent().offset();
-        
-        //console.log(scope.key.position)
-        //setup position to make it look like a piano
-        element.css("position", "absolute")
-               .css("top", scope.key.position.top + offset.top)
-               .css("left", scope.key.position.left + offset.left)
-               ;
-        //on mouse over -> shade
-        
-        //
-        
-    }
-
-    return {
-        
-        link: link,
-        restrict: 'AE',
-        templateUrl: "templates/key.html"
-    };
-  }]);
-
 
 
 

@@ -540,7 +540,8 @@ guitarDemo.controller('guitarGameController', ['$scope', '$timeout', 'pubSubMIDI
     $scope.stage = 0;
     //this keeps the value for vextab to 
     //$scope.vextabLevel = 
-    $scope.vextabLevel = $scope.level[$scope.stage];
+    $scope.vextabLevel = $scope.level[$scope.stage][0];
+    $scope.fretboardLevel = $scope.level[$scope.stage][1];
     
     //recordings
     $scope.pc_recording = [];
@@ -769,5 +770,73 @@ guitarDemo.directive('vextabPaper', ['$compile', function($compile) {
 ////////////////////////////////////////////////////////////////////////////
   
 
+guitarDemo.directive('fretboardPaper', ['$compile', function($compile) {
+    console.log("starting fretboard paper");
+    //var canvas = document.createElement('canvas');
+    //canvas.className = "fretboard-canvas";
+    var fretboard = null;
+    //var ps  = null;
+    var sel = "#fretboardDiv";
+    var containerSel = "#fretboardContainer";
+    //var el = $(sel);
+    //console.log("selected element 1 = ", el);
+    /*if (Vex.Flow.Fretboard) {
+        opts = {};
+        fretboard = new Vex.Flow.FretboardDiv(sel);
+    }else{
+        console.log("ERROR, Fretboard not ready");
+    }*/
+    
+
+    function link(scope, element, attrs) {
+        //update parent things:
+        scope.fretboard = fretboard;
+        var fretboardLevel;
+        
+        function updateFretboard() {
+            console.log("updating fretboard");
+            console.log(fretboardLevel);
+            try {
+                //console.log("parsing!");
+                //erase element,
+                $(containerSel).empty();
+                var ne = angular.element('<div id="fretboardDiv"></div>');
+                ne.text(fretboardLevel);
+                $compile(ne)(scope);
+                $(containerSel).append(ne);
+                //add element
+                fretboard = new Vex.Flow.FretboardDiv(sel);
+                fretboard.build(fretboardLevel);
+                $compile($(sel))(scope);
+            }
+            catch (e) {
+                console.log("Error");
+                console.log(e);
+            }      
+            //$compile(canvas)(scope);
+            //element.append(canvas);
+            //reposition player because something breaks on the default
+            /*if(fretboard !== null && fretboard !== undefined){
+                //TODO
+                var el = $(sel);
+                //console.log("everything is new here: ", el);
+                $compile(el)(scope);
+            }*/
+        }
+
+        scope.$watch(attrs.fretboardPaper, function(value) {
+            console.log("changing fretboard text to: ", value);
+            fretboardLevel = value;
+            updateFretboard();
+        });
+
+    }
+
+    return {
+        transclude:true,
+        link: link
+    };
+  }]);
+  
 
 

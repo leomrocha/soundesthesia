@@ -139,10 +139,16 @@
                 <vextab-paper/>
             </div>-->
 
-            <div class="drill" ng-controller="simonsGameController">
+            <div class="drill" ng-controller="pianoDemoController">
 
-                <div simons-game>
-                Sorry, your Browser does not support HTML5, please use one of the latests Chrome or Firefox
+                <div >
+                    This is the greeting
+                </div>
+                <div >
+                    <img ng-src="{{currentImage}}"/>
+                </div>
+                <div >
+                    <a class="button" ng-click="next()" >Next</a>
                 </div>
 
             </div>
@@ -196,6 +202,7 @@
     <script src="/src/keys_dimensions.js"></script>
     <script src="/src/keyboard_mappings.js"></script>
     <script src="/src/notes_info.js"></script>
+    <script src="/src/piano-demo-level.js"></script>
     <script src="/src/piano_demo.js"></script>
 
 

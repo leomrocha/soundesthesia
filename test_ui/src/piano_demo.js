@@ -749,14 +749,6 @@ pianoApp.controller('keyController', ['$scope', 'pubSubMIDI', function($scope, p
     /////////////////////////////////////////////////////////////
   }]);
 
-pianoApp.controller('demoGuitarController', ['$scope', function($scope) {
-    console.log('initializing controller: guitar');
-  }]);
-
-pianoApp.controller('demoVoiceController', ['$scope', function($scope) {
-    console.log('initializing controller: voice');
-  }]);
-
 //TODO make this more generic instead of all hardcoded
 pianoApp.controller('keyboardController', ['$scope', function($scope) {
     //////////////////////////////////////
@@ -1001,39 +993,37 @@ pianoApp.controller('simonsGameController', ['$scope', '$timeout', 'pubSubMIDI',
     
 }]);
 
-
+////////////////////////////////////////////////////////////////////////////
 ////////////////////////////////////////////////////////////////////////////
   
-pianoApp.directive('simonsGame', ['$compile', function($compile) {
-    return {
-      templateUrl: "templates/simon/simons_game.html"
-    };
-  }]);
+pianoApp.controller('pianoDemoController', ['$scope', '$timeout', 'pubSubMIDI', 'simplePlayer', function($scope, $timeout, pubSubMIDI, simplePlayer) {
 
-pianoApp.directive('simonsStartScreen', ['$compile', function($compile) {
-    return {
-      templateUrl: "templates/simon/start_screen.html"
+    console.log("starting piano demo controller");
+    
+    $scope.currentIndex = 0;
+    
+    $scope.currentImage = PianoDemoLevel[0]["src"];
+    console.log("current image = ", $scope.currentImage);
+    
+    $scope.nextScreen = function(){
+        $scope.currentIndex += 1;
+        $scope.currentImage = PianoDemoLevel[$scope.currentIndex]["src"];
     };
-  }]);
 
-pianoApp.directive('simonsEndScreen', ['$compile', function($compile) {
-    return {
-      templateUrl: "templates/simon/end_screen.html"
+    $scope.next = function(){
+        //TODO finish
+        $scope.nextScreen();
     };
-  }]);
-
-
-pianoApp.directive('simonsSelectLevel', ['$compile', function($compile) {
-    return {
-      templateUrl: "templates/simon/level_select.html"
+    
+    $scope.previous = function(){
+    
     };
-  }]);
+    
+}]);
+
+////////////////////////////////////////////////////////////////////////////
+////////////////////////////////////////////////////////////////////////////
   
-pianoApp.directive('simonsGameStatus', ['$compile', function($compile) {
-    return {
-      templateUrl: "templates/simon/game_status.html"
-    };
-  }]);
 ////////////////////////////////////////////////////////////////////////////
   
 pianoApp.directive('keyboard', ['$compile', function($compile) {

@@ -1009,10 +1009,19 @@ pianoApp.controller('pianoDemoController', ['$scope', '$timeout', 'pubSubMIDI', 
     
     //makes the actions that needs to be done for this screen
     
+    
+    
+    $scope.playFinished = function(){
+        //TODO change state to recording and start the game
+        console.log("callback ok");
+        $scope.next();
+    };
+    
     $scope.act = function(){
         //this is 
         if($scope.currentImage === 0 ){
-            
+            var pattern = PianoDemoLevel[0]["play"];
+            simplePlayer.play(pattern, $scope, "playFinished");        
         }else if($scope.currentImage === 1 ){
         
         }

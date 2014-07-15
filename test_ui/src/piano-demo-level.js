@@ -5,7 +5,21 @@ var PianoDemoLevel = [
                 src: "../images/demolevels/octave_piano.png", 
                 title: "Intro",
                 text: "I'll play a melody and then you copy. Ready?"
-                //next: things that will activate a next: 
+                play: $scope.levelData = [
+                        [48,0,16],
+                        [49,12,16],
+                        [50,16,16],
+                        [51,32,16],
+                        [52,48,16],
+                        [53,64,16],
+                        [54,12,16],
+                        [55,16,16],
+                        [56,32,16],
+                        [57,48,16],
+                        [58,64,16],
+                        [59,12,16],
+                        [60,16,16]
+                        ],
                 //next:[0,"next", -1]
                 },
                 {order:1,

@@ -142,13 +142,16 @@
             <div class="drill" ng-controller="pianoDemoController">
 
                 <div >
-                    This is the greeting
+                    {{currentText}}
                 </div>
                 <div >
                     <img ng-src="{{currentImage}}"/>
                 </div>
                 <div >
-                    <a class="button" ng-click="next()" >Next</a>
+                    <a class="button" ng-click="next()" ng-show="currentIndex !== 0 ">Next</a>
+                </div>
+                <div >
+                    <a class="button" ng-click="next()" ng-show="currentIndex === 0 ">Start</a>
                 </div>
 
             </div>

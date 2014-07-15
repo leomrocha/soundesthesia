@@ -1003,11 +1003,27 @@ pianoApp.controller('pianoDemoController', ['$scope', '$timeout', 'pubSubMIDI', 
     $scope.currentIndex = 0;
     
     $scope.currentImage = PianoDemoLevel[0]["src"];
-    console.log("current image = ", $scope.currentImage);
+    $scope.currentText =  PianoDemoLevel[0]["text"];
+    
+    //$scope.state = "greeting";
+    
+    //makes the actions that needs to be done for this screen
+    
+    $scope.act = function(){
+        //this is 
+        if($scope.currentImage === 0 ){
+            
+        }else if($scope.currentImage === 1 ){
+        
+        }
+    };
     
     $scope.nextScreen = function(){
+        
+        
         $scope.currentIndex += 1;
         $scope.currentImage = PianoDemoLevel[$scope.currentIndex]["src"];
+        
     };
 
     $scope.next = function(){

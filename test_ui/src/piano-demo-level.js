@@ -11,6 +11,7 @@ var PianoDemoLevel = [
                 {order:1,
                 src: "../images/demolevels/do_piano.png", 
                 title: "",
+                text: "One step at a time, let's start playing a Do"
                 //next: things that will activate a next: 
                 //next:[0,"next", -1]
                 },

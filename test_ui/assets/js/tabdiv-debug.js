@@ -3159,7 +3159,6 @@ $(function() {if (Vex.Flow.TabDiv.SEL) { Vex.Flow.TabDiv.start() }});
     };
 
     function Fretboard(paper, options) {
-      console.log("fretboard initialization: ", paper, options);
       this.paper = paper;
       L("constructor: options=", options);
       this.options = {
@@ -3714,7 +3713,6 @@ $(function() {if (Vex.Flow.TabDiv.SEL) { Vex.Flow.TabDiv.start() }});
     };
 
     FretboardDiv.prototype.build = function(code) {
-        console.log("building canvas");
       var canvas, ps;
       if (code == null) {
         code = null;

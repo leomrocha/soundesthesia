@@ -547,9 +547,46 @@ guitarDemo.controller('guitarGameController', ['$scope', '$timeout', 'pubSubMIDI
     $scope.pc_recording = [];
     $scope.user_recording = [];
     
+    
+    //play/stop sound
+    $scope.play = function(){
+        if( $scope.player !== null && $scope.player !== undefined && $scope.player !== 'undefined'){
+            console.log("player");
+            
+            $scope.player.setInstrument("acoustic_guitar_steel");
+            //update player:
+            console.log("render player");
+            $scope.player.render();
+            $scope.playing = true;
+            //$scope.player.render();
+            //console.log($scope.player);
+            $scope.player.play();
+            //$scope.player.start();
+        }else{
+            console.log("ERROR: No sound player found!!");
+        }
+        
+    };
+    
+    $scope.stop = function(){
+            //console.log($scope);
+            if( $scope.player !== null && $scope.player !== undefined && $scope.player !== 'undefined'){
+                //console.log("stop");
+                $scope.playing = false;
+                $scope.player.stop();
+            }else{
+            console.log("ERROR: No sound player found!!");
+        }
+            
+        };
+    //
+    
     $scope.pcPlays = function(){
         //TODO set recording to pc recording
         //TODO play the level
+        console.log("playing");
+        $scope.play();
+        console.log("finished playing");
         //TODO pass the turn to the user
         $scope.turn = 'user';
     };
@@ -708,18 +745,19 @@ guitarDemo.directive('vextabPaper', ['$compile', function($compile) {
         var vextabLevel;
         function updateTab() {
             console.log("updating tab");
-            console.log(vextabLevel);
+            //console.log(vextabLevel);
             try {
                 vextab.reset();
                 artist.reset();
 
                 vextab.parse(vextabLevel);
+                console.log("updating tab 3");
                 artist.render(renderer);
-                //console.log("artist = ", artist);
+                console.log("updating tab 4");
+                console.log("artist = ", artist);
             }
             catch (e) {
-                console.log("Error");
-                console.log(e);
+                console.log("Error", e);
             }      
             $compile(canvas)(scope);
             element.append(canvas);
@@ -771,7 +809,7 @@ guitarDemo.directive('vextabPaper', ['$compile', function($compile) {
   
 
 guitarDemo.directive('fretboardPaper', ['$compile', function($compile) {
-    console.log("starting fretboard paper");
+    //console.log("starting fretboard paper");
     //var canvas = document.createElement('canvas');
     //canvas.className = "fretboard-canvas";
     var fretboard = null;
@@ -794,19 +832,24 @@ guitarDemo.directive('fretboardPaper', ['$compile', function($compile) {
         var fretboardLevel;
         
         function updateFretboard() {
-            console.log("updating fretboard");
-            console.log(fretboardLevel);
+            //console.log("updating fretboard");
+            //console.log(fretboardLevel);
             try {
                 //console.log("parsing!");
-                //erase element,
+                //OK, this is the cannon to a fly way:
+                //erase element
                 $(containerSel).empty();
+                //recreate the element
                 var ne = angular.element('<div id="fretboardDiv"></div>');
                 ne.text(fretboardLevel);
+                //binding and appending
                 $compile(ne)(scope);
                 $(containerSel).append(ne);
                 //add element
+                //now use the FretboardDiv as it is
                 fretboard = new Vex.Flow.FretboardDiv(sel);
                 fretboard.build(fretboardLevel);
+                //recompile for showing it
                 $compile($(sel))(scope);
             }
             catch (e) {
@@ -825,7 +868,7 @@ guitarDemo.directive('fretboardPaper', ['$compile', function($compile) {
         }
 
         scope.$watch(attrs.fretboardPaper, function(value) {
-            console.log("changing fretboard text to: ", value);
+            //console.log("changing fretboard text to: ", value);
             fretboardLevel = value;
             updateFretboard();
         });

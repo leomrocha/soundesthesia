@@ -148,10 +148,11 @@
                     <img ng-src="{{currentImage}}"/>
                 </div>
                 <div >
-                    <a class="button" ng-click="next()" ng-show="currentIndex !== 0 ">Next</a>
-                </div>
-                <div >
-                    <a class="button" ng-click="next()" ng-show="currentIndex === 0 ">Start</a>
+                    <a class="btn btn-warning" ng-click="play(true)" ng-show="!playing && turn === 'pc'">Listen</a>
+                    <a class="btn btn-success" ng-click="play(false)" ng-show="!playing && turn === 'user'">Listen</a>
+                    <a class="btn btn-default" ng-click="next()" ng-show="currentIndex !== 0 && !playing  && turn !== 'user'">My turn</a>
+                    <a class="btn btn-default" ng-click="next()" ng-show="currentIndex !== 0 && !playing  && ( turn === 'user')">Next</a>
+                    <a class="btn btn-default" ng-click="next()" ng-show="currentIndex === 0 && !playing">Start</a>
                 </div>
 
             </div>

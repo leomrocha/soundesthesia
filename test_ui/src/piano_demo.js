@@ -103,7 +103,6 @@ pianoApp.service('pubSubMIDI', [function() {
         
     };
     this.publishNoteOff = function(midi_id){
-        //console.log('publishing note off: ',midi_id);
         var cbacks = this.registerNoteOff[midi_id];
         try{
             //call all the generic ones
@@ -542,6 +541,7 @@ pianoApp.service('simplePlayer', ['$timeout', 'pubSubMIDI', function($timeout, p
     };
     
     self.play = function(sequence, callbackScope, callbackFunctionName){
+        console.log("playing: ",sequence);
     //self.play = function(sequence){
         //set sequence
         self.sequence = sequence;
@@ -1004,25 +1004,48 @@ pianoApp.controller('pianoDemoController', ['$scope', '$timeout', 'pubSubMIDI', 
     
     $scope.currentImage = PianoDemoLevel[0]["src"];
     $scope.currentText =  PianoDemoLevel[0]["text"];
-    
+    $scope.playing = false;
+    $scope.turn = "pc";
+    $scope.recording = [];
+    $scope.notesLevel = []; //only the midi ids for the notes
     //$scope.state = "greeting";
     
     //makes the actions that needs to be done for this screen
     
+    $scope.beginWaitFinished = function(){
+        ///////////////////////////////////////
+        //intro
+        var pattern = PianoDemoLevel[0]["play"];
+        $scope.playing = true;
+        simplePlayer.play(pattern, $scope, "playFinished");        
+        ///////////////////////////////////////
+    };
     
+    $scope.showScreen = function(){
     
+    };
+    
+    //this is UGLY
+    $scope.goNextAfterPlay = false;
     $scope.playFinished = function(){
         //TODO change state to recording and start the game
-        console.log("callback ok");
-        $scope.next();
+        //console.log("callback ok");
+        //$scope.next();
+        $scope.playing = false;
+        if($scope.goNextAfterPlay){
+            $scope.next();
+        }
+        $scope.goNextAfterPlay = false;
     };
     
     $scope.act = function(){
         //this is 
-        if($scope.currentImage === 0 ){
-            var pattern = PianoDemoLevel[0]["play"];
-            simplePlayer.play(pattern, $scope, "playFinished");        
-        }else if($scope.currentImage === 1 ){
+        console.log("acting");
+        if($scope.currentIndex === 0 ){
+            console.log("play");
+            $timeout(function(){$scope.beginWaitFinished()}, 1500);
+            
+        }else if($scope.currentIndex === 1 ){
         
         }
     };
@@ -1031,7 +1054,25 @@ pianoApp.controller('pianoDemoController', ['$scope', '$timeout', 'pubSubMIDI', 
         
         
         $scope.currentIndex += 1;
-        $scope.currentImage = PianoDemoLevel[$scope.currentIndex]["src"];
+        level = PianoDemoLevel[$scope.currentIndex];
+        $scope.currentImage = level["src"];
+        $scope.currentText =  level["text"];
+        $scope.recording = []; //empty previous recordings
+        
+        try{
+            $scope.levelNotes = _.map(level["play"], function(el){ return el[0]});
+            console.log('level = ', $scope.levelNotes);
+            $scope.turn = level["turn"];
+        }catch(e){
+            $scope.turn = "pc";
+        }
+        try{
+            if(level["timeout"] !== null && level["timeout"] !== undefined && level["timeout"] !== 'undefined'){
+                $timeout(function(){$scope.next();}, level["timeout"]);
+            }
+        }catch(e){
+            //nothing to do here, move along
+        }
         
     };
 
@@ -1044,6 +1085,55 @@ pianoApp.controller('pianoDemoController', ['$scope', '$timeout', 'pubSubMIDI', 
     
     };
     
+    $scope.play = function(nextAfterPlay){
+        try{
+            var pattern = PianoDemoLevel[$scope.currentIndex]["play"];
+            $scope.playing = true;
+            $scope.goNextAfterPlay = nextAfterPlay;
+            simplePlayer.play(pattern, $scope, "playFinished");
+        }catch(e){
+            //it can not be played
+        }
+    };
+    
+    $scope.fail = function(){
+    
+    };
+    
+    $scope.success = function(){
+        console.log("success");
+        $scope.next();
+    };
+    
+    $scope.evaluate = function(){
+        console.log("recording");
+        var fail = false;
+        for(var i=0; i< $scope.recording.length; i++){
+            if($scope.levelNotes[i] !== $scope.recording[i]){
+                fail = true;
+                break;
+            }
+        }
+        if(!fail && $scope.recording.length === $scope.levelNotes.length){
+            $scope.success();
+        }else if(fail){
+            $scope.fail;
+        }
+        
+    };
+    //received a note OFF event
+    $scope.noteOff = function(midi_id){
+        console.log("calling note off");
+        $scope.recording.append(midi_id);
+        console.log("recorded");
+        $scope.evaluate();
+        console.log("evaluated");
+    };
+    //register services
+    //console.log(pubSubMIDI);
+    //pubSubMIDI.subscribeAnyNoteOn($scope, "noteOn");
+    pubSubMIDI.subscribeAnyNoteOff($scope, "noteOff");
+    //$scope.act();
 }]);
 
 ////////////////////////////////////////////////////////////////////////////

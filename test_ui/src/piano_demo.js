@@ -1097,7 +1097,10 @@ pianoApp.controller('pianoDemoController', ['$scope', '$timeout', 'pubSubMIDI', 
     };
     
     $scope.fail = function(){
-    
+        //Reset this level
+        //Say SORRY, try again
+        $scope.currentText =  "Try again from the beginning";
+        $scope.recording = [];
     };
     
     $scope.success = function(){
@@ -1117,14 +1120,14 @@ pianoApp.controller('pianoDemoController', ['$scope', '$timeout', 'pubSubMIDI', 
         if(!fail && $scope.recording.length === $scope.levelNotes.length){
             $scope.success();
         }else if(fail){
-            $scope.fail;
+            $scope.fail();
         }
         
     };
     //received a note OFF event
     $scope.noteOff = function(midi_id){
         console.log("calling note off");
-        $scope.recording.append(midi_id);
+        $scope.recording.push(midi_id);
         console.log("recorded");
         $scope.evaluate();
         console.log("evaluated");

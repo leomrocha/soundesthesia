@@ -36,11 +36,11 @@
 							<li><a href="signup_school.html">Schools</a></li>
 				        </ul>
         			</li>
-        			<li >
+        			<!--<li >
         				<a href="demo.html">
           					Demo 
           				</a>
-        			</li>
+        			</li>-->
         			<li >
         				<a href="contactus.html">
           					Contact Us 
@@ -54,8 +54,9 @@
 	<div id="hero">
 		<div class="container">
 			<h1 class="hero-text animated fadeInDown">
-				The best interactive music tools <br />
-				To practice, teach or learn
+				The Best Interactive <br/>
+				Music Tools <br />
+				To practice, teach and learn
 			</h1>
 			<p class="sub-text animated fadeInDown">
 				Practice any time with your own instruments
@@ -64,8 +65,22 @@
 				Create exercises for you or your students
 			</p>
 			<div class="cta animated fadeInDown">
-				<a href="demo.html" class="button-outline">Demo</a>
-				<a href="signup.html" class="button">Subscribe now</a>
+				
+                <div id="mc_embed_signup">
+                    <form action="//annotatit.us7.list-manage.com/subscribe/post?u=9e47d388cb17f32bebd49fd18&amp;id=cabafd5e1d" method="post" id="mc-embedded-subscribe-form" name="mc-embedded-subscribe-form" class="validate form-inline" target="_blank" novalidate>
+	
+                    <div class="mc-field-group form-inline form-group">
+	                    <label for="mce-EMAIL" style="display:none">Email Address</label>
+	                    <input type="email" value="" name="EMAIL" class="required email form-control" id="mce-EMAIL" placeholder="Email">
+                        <input type="submit" value="Subscribe" name="subscribe" id="mc-embedded-subscribe" class="button"></div>
+	                    <div id="mce-responses" class="clear">
+		                    <div class="response" id="mce-error-response" style="display:none"></div>
+		                    <div class="response" id="mce-success-response" style="display:none"></div>
+	                    </div>    <!-- real people should not fill this in and expect good things - do not remove this or risk form bot signups-->
+                        <div style="position: absolute; left: -5000px;"><input type="text" name="b_9e47d388cb17f32bebd49fd18_cabafd5e1d" tabindex="-1" value=""></div>
+
+                    </form>
+                </div>
 			</div>
 			<div class="img"></div>
 		</div>
@@ -79,6 +94,11 @@
 					<p>Soundnesthesia is the perfect tool for you!</p>
 				</div>
 			</div>
+			<div class="row header">
+				<img src="/images/overview.jpg"/>
+			</div>
+
+<!--
 			<div class="row feature">
 				<div class="col-md-6 info">
 					<h4>Amazing interactive tools for students!</h4>
@@ -151,11 +171,10 @@
 				<div class="col-md-6 image">
 					<img src="images/feature2.png" class="img-responsive" alt="feature2" />
 				</div>
-			</div>
+			</div>-->
 		</div>		
 	</div>
-
-	<div id="pricing">
+	<!--<div id="pricing">
 		<div class="container">
 			<div class="row header">
 				<div class="col-md-12">
@@ -165,11 +184,6 @@
 			<div class="row charts">
 				<div class="col-md-4">
 					<div class="chart first">
-						<!--<div class="quantity">
-							<span class="dollar">$</span>
-							<span class="price">29</span>
-							<span class="period">/month</span>
-						</div>-->
 						<div class="plan-name">Solo</div>
 						<div class="specs">
 							<div class="spec">
@@ -211,12 +225,6 @@
 				</div>
 				<div class="col-md-4">
 					<div class="chart">
-						<!--<div class="popular">Teacher</div>-->
-						<!--<div class="quantity">
-							<span class="dollar">$</span>
-							<span class="price">79</span>
-							<span class="period">/month</span>
-						</div>-->
 						<div class="plan-name">Teacher</div>
 						<div class="specs">
 							<div class="spec">
@@ -289,51 +297,6 @@
 				</div>
 			</div>
 		</div>
-	</div>
-
-	<!-- TODO 
-	<div id="testimonials">
-		<div class="container">
-			<div class="row header">
-				<div class="col-md-12">
-					<h3>Trusted by many people around the world:</h3>
-				</div>
-			</div>
-			<div class="row">
-				<div class="col-sm-6">
-					<div class="testimonial pull-right">
-						<div class="quote">
-							Even the demo mode is AWESOME
-							<div class="arrow-down">
-				                <div class="arrow"></div>
-				                <div class="arrow-border"></div>
-				            </div>
-						</div>
-						<div class="author">
-							<img src="images/testimonials/testimonial1.jpg" class="pic" alt="testimonial1" />
-							<div class="name">John Doe</div>
-							<div class="company">Guitar Student</div>
-						</div>
-					</div>
-				</div>
-				<div class="col-sm-6">
-					<div class="testimonial">
-						<div class="quote">
-							This is the best tool for teaching music EVER!
-							<div class="arrow-down">
-				                <div class="arrow"></div>
-				                <div class="arrow-border"></div>
-				            </div>
-						</div>
-						<div class="author">
-							<img src="images/testimonials/testimonial2.jpg" class="pic" alt="testimonial2" />
-							<div class="name">Karen Jones</div>
-							<div class="company">Online music teacher</div>
-						</div>
-					</div>
-				</div>
-			</div>
-		</div>
 	</div>-->
 
 
@@ -364,4 +327,14 @@
 	<script src="http://ajax.googleapis.com/ajax/libs/jquery/1.10.2/jquery.min.js"></script>
 	<script src="js/bootstrap/bootstrap.min.js"></script>
 	<script src="js/theme.js"></script>
+
+
+<!--Mailchimp-->
+<script type='text/javascript' src='//s3.amazonaws.com/downloads.mailchimp.com/js/mc-validate.js'></script>
+<script type='text/javascript'>
+(function($) {
+window.fnames = new Array(); window.ftypes = new Array();fnames[0]='EMAIL';ftypes[0]='email';fnames[1]='FNAME';ftypes[1]='text';fnames[2]='LNAME';ftypes[2]='text';
+}(jQuery));
+var $mcj = jQuery.noConflict(true);
+</script>
 </html>

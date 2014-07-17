@@ -144,8 +144,14 @@
                 <div >
                     <h3>{{currentText}}</h3>
                 </div>
-                <div ng-show="!playing">
+                <div  class="col-sd-9 col-md-9 col-ld-9" ng-show="!playing">
                     <img ng-src="{{currentImage}}"/>
+                </div>
+                <div  class="col-sd-3 col-md-3 col-ld-3" ng-show="!playing">
+                    <a href="/signup.html" class="btn btn-default btn-lg" >
+                        <i class="fa fa-plus"></i>
+                        <span class="network-name">I want more!</span>
+                    </a>
                 </div>
                 <!--<div>
                     <div id="mc_embed_signup">

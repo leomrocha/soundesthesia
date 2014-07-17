@@ -102,9 +102,9 @@
 			        <span class="icon-bar"></span>
 			        <span class="icon-bar"></span>
 		      	</button>
-      			<a href="index.html" class="navbar-brand">Soundnesthesia</a>
+      			<a href="/" class="navbar-brand">Soundnesthesia</a>
     		</div>
-    		<nav class="collapse navbar-collapse bs-navbar-collapse" role="navigation">
+    		<!--<nav class="collapse navbar-collapse bs-navbar-collapse" role="navigation">
       			<ul class="nav navbar-nav navbar-right">
       				<li class="dropdown">
         				<a href="#" class="dropdown-toggle" data-toggle="dropdown">
@@ -127,7 +127,7 @@
           				</a>
         			</li>
       			</ul>
-    		</nav>
+    		</nav>-->
   		</div>
 	</header>
 
@@ -144,11 +144,33 @@
                 <div >
                     {{currentText}}
                 </div>
-                <div ng-show="success && !playing">
+                <div ng-show="!playing">
                     <img ng-src="{{currentImage}}"/>
                 </div>
-                <div>
-                    <div data-vextab-paper="vextabText">
+                <!--<div>
+                    <div id="mc_embed_signup">
+                        <form action="//annotatit.us7.list-manage.com/subscribe/post?u=9e47d388cb17f32bebd49fd18&amp;id=cabafd5e1d" method="post" id="mc-embedded-subscribe-form" name="mc-embedded-subscribe-form" class="validate form-inline" target="_blank" novalidate>
+	
+                        <div class="mc-field-group form-inline form-group">
+	                        <label for="mce-EMAIL" style="display:none">Email Address</label>
+	                        <input type="email" value="" name="EMAIL" class="required email form-control" id="mce-EMAIL" placeholder="Email">
+                            <input type="submit" value="Subscribe" name="subscribe" id="mc-embedded-subscribe" class="button"></div>
+	                        <div id="mce-responses" class="clear">
+		                        <div class="response" id="mce-error-response" style="display:none"></div>
+		                        <div class="response" id="mce-success-response" style="display:none"></div>
+	                        </div>
+                            <div style="position: absolute; left: -5000px;"><input type="text" name="b_9e47d388cb17f32bebd49fd18_cabafd5e1d" tabindex="-1" value=""></div>
+
+                        </form>
+                    </div>
+                </div>-->
+                <div class="row">
+                    <div class="col-sd-9 col-md-9 col-ld-9">
+                        <div data-vextab-paper="vextabText">
+                        </div>
+                    </div>
+                    <div class="col-sd-3 col-md-3 col-ld-3">
+                        <img ng-src="{{parrotImage}}" ng-show="success !== true"/>
                     </div>
                     <!--<div class="row">
                         <a class="btn btn-default btn-lg" ng-click="play()">
@@ -165,7 +187,7 @@
                     <a class="btn btn-warning" ng-click="play(true)" ng-show="!playing && turn === 'pc'">Listen</a>
                     <a class="btn btn-success" ng-click="play(false)" ng-show="!playing && turn === 'user'">Listen</a>
                     <!--<a class="btn btn-default" ng-click="next()" ng-show="currentIndex !== 0 && !playing  && turn !== 'user'">My turn</a>-->
-                    <a class="btn btn-default" ng-click="next()" ng-show="currentIndex !== 0 && !playing ">Next</a>
+                    <a class="btn btn-default" ng-click="next()" ng-show="currentIndex !== 0 && playing ">Next</a>
                     <a class="btn btn-default" ng-click="next()" ng-show="currentIndex === 0 && !playing">Start</a>
                 </div>
 
@@ -188,7 +210,7 @@
 		<div class="container">
 			<div class="row credits">
 				<div class="col-md-12">
-					<p class="copyright text-muted small">Copyright &copy; <a href="/">Soundnesthesia</a> 2014. All Rights Reserved</p>
+					<!--<p class="copyright text-muted small">Copyright &copy; <a href="/">Soundnesthesia</a> 2014. All Rights Reserved</p>-->
 				</div>
 			</div>
 		</div>
@@ -225,6 +247,29 @@
     <script src="/src/notes_info.js"></script>
     <script src="/src/piano-demo-level.js"></script>
     <script src="/src/piano_demo.js"></script>
+
+
+<!--Mailchimp-->
+<script type='text/javascript' src='//s3.amazonaws.com/downloads.mailchimp.com/js/mc-validate.js'></script>
+<script type='text/javascript'>
+(function($) {
+window.fnames = new Array(); window.ftypes = new Array();fnames[0]='EMAIL';ftypes[0]='email';fnames[1]='FNAME';ftypes[1]='text';fnames[2]='LNAME';ftypes[2]='text';
+}(jQuery));
+var $mcj = jQuery.noConflict(true);
+</script>
+
+
+<!-- Google analytics -->
+<script>
+  (function(i,s,o,g,r,a,m){i['GoogleAnalyticsObject']=r;i[r]=i[r]||function(){
+  (i[r].q=i[r].q||[]).push(arguments)},i[r].l=1*new Date();a=s.createElement(o),
+  m=s.getElementsByTagName(o)[0];a.async=1;a.src=g;m.parentNode.insertBefore(a,m)
+  })(window,document,'script','//www.google-analytics.com/analytics.js','ga');
+
+  ga('create', 'UA-52903268-1', 'auto');
+  ga('send', 'pageview');
+
+</script>
 
 
 </html>

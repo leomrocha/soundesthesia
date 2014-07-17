@@ -1447,7 +1447,7 @@ $(function() {if (Vex.Flow.TabDiv.SEL) { Vex.Flow.TabDiv.start() }});
       }
       this.rendered = true;
       if (!Vex.Flow.Artist.NOLOGO) {
-        LOGO = "musicpaste.com";
+        LOGO = "";
         width = ctx.measureText(LOGO).width;
         ctx.save();
         ctx.setFont("Times", 10, "italic");

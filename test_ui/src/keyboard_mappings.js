@@ -8,6 +8,12 @@
  
 LeosPiano.KeyboardMappings = {}
 
+
+LeosPiano.SimpleUniversal = {
+    'id': 'EN_FR',
+    'FR':['q','z','s','e','d','f','t','g','y','h','u','j','k','o','l','p','m','ù'],
+    'EN':['a','w','s','e','d','f','t','g','y','h','u','j','k','o','l','p',';',"["]
+};
 //English
 LeosPiano.KeyboardMappings.en = {
     'id': 'EN',
@@ -115,5 +121,11 @@ LeosPiano.KeyCodeMappings = {
         123:'{',
         124:'|',
         125:'}',
-        126:'~'
+        126:'~',
+        186: ';',
+        188:',',
+        222:"'",
+        226:'ù',
+        229: '^'
+        
 };

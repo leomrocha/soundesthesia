@@ -564,12 +564,16 @@ pianoApp.service('keyboardService', ['pubSubMIDI', function(pubSubMIDI) {
     ////////////////////
     //TODO take this hardcoded thing away and add the possibility to change keyboard layout!
     this.self = this;
-    var layout = LeosPiano.KeyboardMappings.fr['A'];
-    var keys_ids = _.range(45, 72);
+    //var layout = LeosPiano.KeyboardMappings.fr['A'];
+    //var keys_ids = _.range(45, 72);
+    layout_FR = LeosPiano.SimpleUniversal['FR'];
+    layout_EN = LeosPiano.SimpleUniversal['EN'];
+    var keys_ids = _.range(48, 66);
     
     this.mappings = {};
     for(var i=0; i < keys_ids.length; i++){
-        this.mappings[layout[i]] = keys_ids[i];
+        this.mappings[layout_FR[i]] = keys_ids[i];
+        this.mappings[layout_EN[i]] = keys_ids[i];
         
     }
     
@@ -677,7 +681,7 @@ pianoApp.controller('mainController', ['$scope', '$window', 'keyboardService', '
     
     //midiService.init();
     angular.element($window).on('keydown', function(e) {
-        //console.log("Key down: ", e);
+        console.log("Key down: ", e.keyCode);
         //TODO call the keyboard processor
         //console.log('kbservice = ', kbService);
         kbService.keyPressed(e);
@@ -690,13 +694,6 @@ pianoApp.controller('mainController', ['$scope', '$window', 'keyboardService', '
     
   }]);
   
-pianoApp.controller('demoPianoController', ['$scope', function($scope) {
-    //console.log('initializing controller: piano');
-  }]);
-  
-//pianoApp.controller('keyboardController', ['$scope', function($scope) {
-//    console.log('initializing controller: piano keyboard');
-//  }]);
   
 pianoApp.controller('keyController', ['$scope', 'pubSubMIDI', function($scope, pubSubMidi) {
     //console.log('initializing controller: piano key');
@@ -760,7 +757,8 @@ pianoApp.controller('keyboardController', ['$scope', function($scope) {
     //console.log("starting keyboard controller");
     //var keys_ids = _.range(48, 72); //2 octaves
     //var keys_ids = _.range(36, 72); //3 octaves
-    var keys_ids = _.range(45, 72); //2 octaves and 3 keys //leave it this way until made generic if not the keyboard layout will break
+    //var keys_ids = _.range(45, 72); //2 octaves and 3 keys //leave it this way until made generic if not the keyboard layout will break
+    var keys_ids = _.range(48, 66);
     $scope.keys = _.map(keys_ids, function(value, key, list){ return LeosPiano.Notes.notes[value];});
     //END todo
     ///////////////////////////////
@@ -771,7 +769,9 @@ pianoApp.controller('keyboardController', ['$scope', function($scope) {
     //$scope.lang = window.navigator.userLanguage || window.navigator.language;
     //TODO make this more generic instead of hardcoded
     //default layout is french, and starting in LA, assuming the range (45,72)
-    $scope.layout = LeosPiano.KeyboardMappings.fr['A'];
+    //$scope.layout = LeosPiano.KeyboardMappings.fr['A'];
+    $scope.layout_FR = LeosPiano.SimpleUniversal['FR'];
+    $scope.layout_EN = LeosPiano.SimpleUniversal['EN'];
 
     /*if( $scope.lang.search('en') >= 0 || $scope.lang.search('EN') >= 0 ){
         $scope.layout = LeosPiano.KeyboardMappings.en['A'];
@@ -793,7 +793,8 @@ pianoApp.controller('keyboardController', ['$scope', function($scope) {
     for(var i=0; i<$scope.keys.length; i++){
         var key = $scope.keys[i];
         //ugly neyboard mapping:
-        key.label = $scope.layout[i];
+        key.label = $scope.layout_FR[i];
+        key.label2 = $scope.layout_EN[i];
         //ugly synesthesia setup
         var hsl_val = syn[key.number];
         //convert to RGB
@@ -820,182 +821,6 @@ pianoApp.controller('keyboardController', ['$scope', function($scope) {
     //END ugly hack
     ////////////////////////////////////////////////////////////////////////////
   }]);
-  
-pianoApp.controller('simonsGameController', ['$scope', '$timeout', 'pubSubMIDI', 'simplePlayer', function($scope, $timeout, pubSubMIDI, simplePlayer) {
-    ////////////////////
-    //console.log("starting simons game controller");
-    $scope.self = this;
-    
-    //feedback to the user
-    $scope.successMusic = []; //TODO
-    $scope.failMusic = []; //TODO
-    
-    //game configuration
-    $scope.bpm = 60;
-    //$scope.
-    
-    //game status
-    $scope.recording = [];
-    $scope.state = "stopped"; // (playing/recording/stopped)
-    $scope.gameState = "start"; //playing/win/loose/idle
-    
-    //level being played, for the moment is only one note at a time
-    // data = (midi_id, start_time, time_to_play)
-    //TODO add multi-note support
-    $scope.levelData = [
-                        [48,0,12],
-                        [48,12,4],
-                        [50,16,16],
-                        [48,32,16],
-                        [53,48,16],
-                        [52,64,32]
-                        ];
-    //contains only the midi_ids for the data, this allows for faster and easier evaluation
-    $scope.levelDataNotes = [48,48,50,48,53,52];
-    //the name of the level
-    $scope.levelName = "";
-    //current index that is being played until (levels are passed sequentially)
-    $scope.currentIndex = 0;
-    $scope.currentLength = 1;
-    //set level data
-    $scope.setLevelData = function(levelData){
-        $scope.levelData = levelData;
-        //extract data notes only in midi_id:
-        for(var i=0; i< levelData.length; i++){
-            $scope.levelDataNotes.push(levelData[i][0]);
-        }
-    };
-    
-    $scope.playFinished = function(){
-        //TODO change state to recording and start the game
-        console.log("callback ok");
-        $scope.state = "recording";
-        $scope.gameState = "playing";
-    };
-
-    $scope.play = function(dataLength){
-        //console.log("playing melody");
-        $scope.state = "playing";
-        $scope.gameState = "playing";
-        //take in account to play everything
-        if (dataLength === null || dataLength === undefined || dataLength === "undefined"){
-            //console.log("setting length because of null");
-            //console.log($scope.levelData);
-            dataLength = $scope.levelData.length;
-            //console.log(dataLength);
-        }
-        
-        var pattern = $scope.levelData.slice(0, dataLength);
-        simplePlayer.play(pattern, $scope, "playFinished");
-
-        
-    };
-    //starts the game
-    $scope.start = function(){
-        //TODO
-        console.log("starting game");
-        //play current level
-        $scope.play(1);
-        //wait for user input
-    };
-    //setup everything for when the exercise starts
-    $scope.record = function(){
-        $scope.state = "recording";
-    }
-    //Stop the play recording
-    $scope.stopRecording = function(){
-        //set recording flag to nothing   
-        $scope.state = "stopped";
-        $scope.gameState = "idle";
-    }
-    
-    //reset recording to clean slate
-    $scope.reset = function(){
-        $scope.recording = [];
-        $scope.currentIndex = 0;
-    }
-
-    //when the game is won
-    $scope.success = function(){
-        //TODO
-        console.log("you win");
-        //present overlay that the person won, and play again (other speed? other level?)
-    };    
-    //when the game is lost
-    $scope.fail = function(){
-        //TODO
-        console.log("you loose");
-        $scope.stopRecording();
-        $scope.reset();
-        
-    };
-    //evaluate the performance up to the current moment
-    //midi_id is the current note, 
-    //the evaluation evaluates the whole performance if midi_id is null or undefined
-    $scope.evaluate = function(midi_id){
-        //TODO 
-        // add support for time evaluation, for the moment is a really simple and basic game
-        console.log("evaluating note: ", midi_id);
-        response = $scope.recording.join('');
-        console.log("response = ", response);
-        
-		var pattern = $scope.levelDataNotes.slice(0, $scope.recording.length).join('');
-		console.log("pattern = ", pattern);
-		if( response === pattern && $scope.recording.length === $scope.levelDataNotes.length) {
-		    console.log("you are a winner!");
-			$scope.stopRecording();
-			$scope.success();
-		} else if ( response === pattern && $scope.recording.length === $scope.currentLength) {
-		    //console.log("adding a new note");
-		    //add one more note
-		    $scope.currentLength +=1;
-		    $scope.stopRecording();
-		    //clean slate for the recording
-		    $scope.reset();
-		    //start from the begginng, but leaving enough time to actually get the person to react
-		    $timeout(function(){$scope.play($scope.currentLength)}, 800);
-		}else if ( response !== pattern ) {
-		    console.log('you are a looser!');
-		    //TODO count remaining lives
-		    //if no more
-			$scope.fail();
-			//else:
-			//TODO try again!
-		}
-		//else, we are going OK
-    }
-    //received a note ON event
-    //TODO make this happen in the next iteration of the game, when times are taken in account
-    $scope.noteOn = function(midi_id){
-        //TODO
-        //measure time from the beginning
-        //save in cache (note, start_time, some other info?)
-        //the following is a basic functionality to be changed when the more advanced one is implemented
-    }
-    
-    //received a note OFF event
-    $scope.noteOff = function(midi_id){
-        //TODO
-        //find the note that was being played,
-        //measure duration
-        //save in record (note, start_time, end_time, duration, some other info?)
-        //console.log("recording in game note: ", midi_id);
-
-        if( $scope.state == "recording"){
-            $scope.recording.push(midi_id);
-            $scope.currentIndex +=1;
-            //update game status (if the user is OK, won or 
-            $scope.gameStatus = $scope.evaluate(midi_id);
-        }
-        //console.log("end recording");
-    }
-    //register services
-    //console.log(pubSubMIDI);
-    //TODO reconnect when more advanced features taken in account (tempo for example)
-    //pubSubMIDI.subscribeAnyNoteOn($scope, "noteOn");
-    pubSubMIDI.subscribeAnyNoteOff($scope, "noteOff");
-    
-}]);
 
 ////////////////////////////////////////////////////////////////////////////
 ////////////////////////////////////////////////////////////////////////////
@@ -1005,11 +830,18 @@ pianoApp.controller('pianoDemoController', ['$scope', '$timeout', 'pubSubMIDI', 
     console.log("starting piano demo controller");
     
     $scope.currentIndex = 0;
-    
+    $scope.parrotImages = [ "/images/parrot_piano_150.png",
+                            "/images/V5_150.png",
+                            "/images/V1_150.png",
+                            "/images/V3_150.png"
+                            ];
+    $scope.parrotImageIndex = 0;
     $scope.currentImage = "";
+    $scope.parrotImage = $scope.parrotImages[$scope.parrotImageIndex];
     $scope.currentText =  PianoDemoLevel[0]["text"];
     $scope.vextabText = PianoDemoLevel[0]["vextab"];
     $scope.playing = false;
+    $scope.success = false;
     $scope.turn = "pc";
     $scope.recording = [];
     $scope.notesLevel = []; //only the midi ids for the notes
@@ -1064,7 +896,8 @@ pianoApp.controller('pianoDemoController', ['$scope', '$timeout', 'pubSubMIDI', 
             $scope.currentImage = "/images/happy_parrot_400.png"
             $scope.success = true;
             $scope.playing = false;
-            $scope.vextabText = "You made it, Congratulations!";
+            $scope.vextabText = "";
+            $scope.currentText = "You made it, Congratulations!";
         }else{
             $scope.playing = true;
             level = PianoDemoLevel[$scope.currentIndex];
@@ -1138,6 +971,8 @@ pianoApp.controller('pianoDemoController', ['$scope', '$timeout', 'pubSubMIDI', 
         }else if(fail){
             $scope.fail();
         }
+        $scope.parrotImageIndex = ($scope.parrotImageIndex + 1 ) % $scope.parrotImages.length;
+        $scope.parrotImage = $scope.parrotImages[$scope.parrotImageIndex];
         
     };
     ///
@@ -1170,11 +1005,11 @@ pianoApp.controller('pianoDemoController', ['$scope', '$timeout', 'pubSubMIDI', 
     
     //received a note OFF event
     $scope.noteOff = function(midi_id){
-        console.log("calling note off");
+        //console.log("calling note off");
         $scope.recording.push(midi_id);
-        console.log("recorded");
+        //console.log("recorded");
         $scope.evaluate();
-        console.log("evaluated");
+        //console.log("evaluated");
     };
     //register services
     //console.log(pubSubMIDI);
@@ -1194,21 +1029,22 @@ pianoApp.directive('keyboard', ['$compile', function($compile) {
     //var language = window.navigator.userLanguage || window.navigator.language;
     //alert(language); //works IE/SAFARI/CHROME/FF
 
-    function link(scope, element, attrs) {
+    /*function link(scope, element, attrs) {
         //get the computer keyboard layout
         //console.log("starting keyboard link");
         //var language = window.navigator.userLanguage || window.navigator.language;
         //alert(language); //works IE/SAFARI/CHROME/FF
         //get the beginning and end of the keyboard
         //generate the keyboard
-    }
+    }*/
 
     return {
-      link: link,
+      //link: link,
       //replace: true,
       templateUrl: "templates/keyboard.html"
     };
   }]);
+  
 pianoApp.directive('key', ['$compile', function($compile) {
     //console.log("starting key");
     function link(scope, element, attrs) {

@@ -147,7 +147,7 @@
                     </div>
                     <div >
                         <a class="btn btn-success" ng-click="play(true)" ng-show="!playing && turn === 'pc' && success !== true">Listen & Start</a>
-                        <a class="btn btn-success" ng-click="play(false)" ng-show="!playing && turn === 'user'">Listen</a>
+                        <a class="btn btn-success" ng-click="play(false)" ng-show="turn === 'user'">Listen</a>
                         <!--<a class="btn btn-default" ng-click="next()" ng-show="currentIndex !== 0 && !playing  && turn !== 'user'">My turn</a>-->
                         <a class="btn btn-default" ng-click="next()" ng-show="currentIndex !== 0 && playing ">Next</a>
                         <a class="btn btn-default" ng-click="next()" ng-show="currentIndex === 0 && !playing">Start</a>
@@ -161,12 +161,6 @@
                     <div  class="col-sd-9 col-md-9 col-ld-9" ng-show="!playing">
                         <img ng-src="{{currentImage}}"/>
                     </div>                
-                    <div id="demo_greeting" ng-show="screen === 'greetings'">
-                        <div class="col-xs-4 col-md-4 col-ld-4 image">
-			      			<img src="images/tabs/pic1.png" class="img-responsive" alt="picture1" />
-			      		</div>    
-		      		</div>
-			      		
 				</div>
 				
 				<div class=" col-xs-12 col-md-12 col-ld-12">
@@ -217,17 +211,12 @@
     <!-- deps-->
     <script src="/assets/js/base64-binary.js"></script>
     <script src="/assets/js/MIDI.min.js"></script>
-    <!-- music sheets-->
     <script src="/assets/js/paper-core.min.js"></script>
     <script src="/assets/js/vexflow-min.js"></script>
-    <script src="/assets/js/tabdiv-debug.js"></script>
+    <script src="/assets/js/tabdiv-min.js"></script>
     <!-- guitar fretboard -->
     
     <!-- And my actual application, the order is important -->
-    <script src="/src/piano_setup.js"></script>
-    <script src="/src/keys_dimensions.js"></script>
-    <script src="/src/keyboard_mappings.js"></script>
-    <script src="/src/notes_info.js"></script>
     <script src="/src/guitar-demo-level.js"></script>
     <script src="/src/guitar_demo.js"></script>
 

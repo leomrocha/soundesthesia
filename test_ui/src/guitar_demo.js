@@ -79,7 +79,6 @@ guitarDemo.service('pubSubMIDI', [function() {
         this.registerNoteOff[midi_id].push([scope, callback]);
     };
     this.publishNoteOn = function(midi_id){
-        //console.log('publishing note on: ',midi_id);
         var cbacks = this.registerNoteOn[midi_id];
         try{
             //call all the generic ones
@@ -88,20 +87,20 @@ guitarDemo.service('pubSubMIDI', [function() {
                 sc[0][sc[1]](midi_id);
             }
             //now all the specific calls only for that note
-            for(var i=0; i< cbacks.length; i++)
-            {
-                //callback
-                var cback = cbacks[i];
-                cback[0][cback[1]](); //scope.function() call
-                //console.log("callback called: ", cback[0][cback[1]]);
+            if(cbacks !== null && cbacks !== 'undefined' &&cbacks !== undefined){
+                for(var i=0; i< cbacks.length; i++)
+                {
+                    //callback
+                    var cback = cbacks[i];
+                    cback[0][cback[1]](); //scope.function() call
+                    //console.log("callback called: ", cback[0][cback[1]]);
+                }
             }
         }catch(err){
             //nothing to see here ... move along
         }
-        
     };
     this.publishNoteOff = function(midi_id){
-        //console.log('publishing note off: ',midi_id);
         var cbacks = this.registerNoteOff[midi_id];
         try{
             //call all the generic ones
@@ -109,11 +108,13 @@ guitarDemo.service('pubSubMIDI', [function() {
                 var sc = this.registerAnyNoteOff[j];
                 sc[0][sc[1]](midi_id);
             }
-            //now the specifics
-            for(var i=0; i< cbacks.length; i++){
-                var cback = cbacks[i];
-                cback[0][cback[1]](); //scope.function() call
-                //console.log("callback called: ", cback[0][cback[1]]);
+            if(cbacks !== null && cbacks !== 'undefined' &&cbacks !== undefined){
+                //now the specifics
+                for(var i=0; i< cbacks.length; i++){
+                    var cback = cbacks[i];
+                    cback[0][cback[1]](); //scope.function() call
+                    //console.log("callback called: ", cback[0][cback[1]]);
+                }
             }
         }catch(err){
             console.log("error occurred: ", err);
@@ -413,17 +414,17 @@ guitarDemo.service('midiService', ['pubSubMIDI', function(pubSubMIDI) {
     
     //nice loader circle thing
 	Event.add("body", "ready", function() {
-		MIDI.loader = new widgets.Loader("Loading Piano Sounds");
+		MIDI.loader = new widgets.Loader("Loading Guitar Sounds");
 	});
     //init midi
     this.init = function(){
         //load midi
 	    MIDI.loadPlugin({
 		    soundfontUrl: "../assets/soundfonts/",
-		    instrument: "acoustic_grand_piano",
+		    instrument: "acoustic_guitar_nylon",
 		    callback: function() {
+		        MIDI.programChange(0, 24);
 			    MIDI.loader.stop();
-			    //TODO erase loader
 		    }
 	    });    
     };
@@ -448,7 +449,7 @@ guitarDemo.service('midiService', ['pubSubMIDI', function(pubSubMIDI) {
     };
     //
     //register services
-    //console.log(pubSubMIDI);
+    //console.log("registering midi service: ", pubSubMIDI);
     pubSubMIDI.subscribeAnyNoteOn(this, "playNote");
     pubSubMIDI.subscribeAnyNoteOff(this, "stopNote");
     this.init();
@@ -495,15 +496,87 @@ guitarDemo.service('midiRecorderService', ['pubSubMIDI', function(pubSubMIDI) {
 
 
 ////////////////////////////////////////////////////////////////////////////////
+// Simple Player Service
+////////////////////////////////////////////////////////////////////////////////
+// Tempos: 
+// 1 semifusa
+// 2 fusa
+// 4 semi corchea
+// 8 corchea
+// 16 negra
+// 32 blanca
+// 64 redonda
+//
+
+
+guitarDemo.service('simplePlayer', ['$timeout', 'pubSubMIDI', 'midiService', function($timeout, pubSubMIDI) {
+
+    this.self = this;
+    var self = this;
+    //simple player that plays a secuence of notes in the format:
+    self.sequence = [];
+    //default bpm
+    self.bpm = 60;
+    //16 is the code for black key
+    self.tempoMultiplier = (1000 * self.bpm) / (60 * 16);
+    
+    self.playNext = function(index){
+        idxOff = index - 1;
+        //turn off previous note
+        if(idxOff>=0 && idxOff < self.sequence.length){
+            pubSubMIDI.publishNoteOff(self.sequence[idxOff][0]);
+        }
+        
+        if(index < self.sequence.length){
+            //play note 
+            note = self.sequence[index][0];
+            playTime = self.sequence[index][2] * self.tempoMultiplier;
+            //play next note
+            pubSubMIDI.publishNoteOn(note);
+            //TODO wait play time
+            //note OFF will be called on the callback
+            $timeout(function(){
+                    //console.log("calling timeout callback: ", $scope);
+                    //console.log(this)
+                    self.playNext(index+1);
+                    }, 
+                    playTime
+                    );
+        }else{
+            //console.log("play sequence finished");
+            //finished playing
+            //callback to the caller!
+            self.callback();
+            //$scope.fini        
+        }
+    };
+    
+    self.setbpm = function(bpm){
+        self.bpm = bpm;
+        self.tempoMultiplier = (1000 * self.bpm) / (60 * 16);
+    };
+    
+    self.play = function(sequence, callbackScope, callbackFunctionName){
+    //self.play = function(sequence){
+        //set sequence
+        self.sequence = sequence;
+        //set callback
+        self.callback = callbackScope[callbackFunctionName];
+        self.playNext(0);
+    };
+    
+}]);
+
+////////////////////////////////////////////////////////////////////////////////
 // CONTROLLERS
 ////////////////////////////////////////////////////////////////////////////////
   
-guitarDemo.controller('guitarGameController', ['$scope', '$timeout', 'pubSubMIDI', 'micCaptureService', function($scope, $timeout, pubSubMIDI, micService) {
+guitarDemo.controller('guitarGameController', ['$scope', '$timeout', 'pubSubMIDI', 'micCaptureService', 'simplePlayer', 'midiService', function($scope, $timeout, pubSubMIDI, micService, simplePlayer, midiService) {
     ////////////////////
     //console.log("guitar game controller starting");
   
     $scope.currentIndex = 0;
-    $scope.parrotImages = [ "/images/parrot_piano_150.png",
+    $scope.parrotImages = [ "/images/parrot_guitar_150.png",
                             "/images/V5_150.png",
                             "/images/V1_150.png",
                             "/images/V3_150.png"
@@ -541,9 +614,9 @@ guitarDemo.controller('guitarGameController', ['$scope', '$timeout', 'pubSubMIDI
     $scope.goNextAfterPlay = false;
     $scope.playFinished = function(){
         //TODO change state to recording and start the game
-        //console.log("callback ok");
+        //console.log("play finished callback ok");
         //$scope.next();
-        $scope.playing = false;
+        //$scope.playing = false;
         if($scope.goNextAfterPlay){
             $scope.next();
         }
@@ -616,9 +689,11 @@ guitarDemo.controller('guitarGameController', ['$scope', '$timeout', 'pubSubMIDI
     $scope.play = function(nextAfterPlay){
         try{
             var pattern = GuitarDemoLevel[$scope.currentIndex]["play"];
+            //console.log("pattern to play = ", pattern);
             $scope.playing = true;
             $scope.goNextAfterPlay = nextAfterPlay;
             simplePlayer.play(pattern, $scope, "playFinished");
+            //console.log("playing launched");
         }catch(e){
             //it can not be played
         }
@@ -637,18 +712,15 @@ guitarDemo.controller('guitarGameController', ['$scope', '$timeout', 'pubSubMIDI
     };
     
     $scope.evaluate = function(midi_id){
-        console.log("evaluating ", midi_id);
-        console.log("$scope.levelNotes = ", $scope.levelNotes);
+        //console.log("evaluating ", midi_id);
+        //console.log("$scope.levelNotes = ", $scope.levelNotes);
         //setup text beacause might be coming from a mistake
         $scope.currentText =  GuitarDemoLevel[$scope.currentIndex]["text"];
         $scope.parrotImageIndex = ($scope.parrotImageIndex + 1 ) % $scope.parrotImages.length;
         $scope.parrotImage = $scope.parrotImages[$scope.parrotImageIndex];
         //evaluate if the note played is the one that should be played
         var cindex = $scope.recording.length;
-        console.log(cindex);
-        console.log("$scope.levelNotes[cindex] = ", $scope.levelNotes[cindex]);
         if(cindex >=0 && $scope.levelNotes[cindex] === midi_id){
-            console.log("notes matches, appending: ", midi_id);
             $scope.recording.push(midi_id);
         }
         if($scope.recording.length === $scope.levelNotes.length){
@@ -661,21 +733,20 @@ guitarDemo.controller('guitarGameController', ['$scope', '$timeout', 'pubSubMIDI
     //function to setup as callback to the micService
     $scope.micReceiverCallback = function(note){
         if(!$scope.micAllowed){
-            console.log("mic allowed now!");
+            //console.log("mic allowed now!");
             $scope.micAllowed = true;
         }else{
             $scope.evaluate(note.note);
         }
-        console.log("received note = ", note)
     };
     //console.log("starting mic service");
-    console.log(micService);
+    //console.log(micService);
     micService.registerCallback($scope, 'micReceiverCallback');
     micService.start();
     
-    //received a note ON event
+    /*//received a note ON event
     $scope.noteOn = function(midi_id){
-        console.log("receiving note by note_on: ", midi_id);
+        //console.log("receiving note by note_on: ", midi_id);
         //$scope.recording.push(midi_id);
         //console.log("recorded");
         $scope.evaluate(midi_id);
@@ -685,6 +756,8 @@ guitarDemo.controller('guitarGameController', ['$scope', '$timeout', 'pubSubMIDI
     //console.log(pubSubMIDI);
     pubSubMIDI.subscribeAnyNoteOn($scope, "noteOn");
     //pubSubMIDI.subscribeAnyNoteOff($scope, "noteOff");
+    */
+    //midiService.init();
     //micService.init();
     
 }]);
@@ -798,16 +871,18 @@ guitarDemo.directive('fretboardPaper', ['$compile', function($compile) {
                 //OK, this is the cannon to a fly way:
                 //erase element
                 $(containerSel).empty();
-                //recreate the element
-                var ne = angular.element('<div id="fretboardDiv"></div>');
-                ne.text(fretboardLevel);
-                //binding and appending
-                $compile(ne)(scope);
-                $(containerSel).append(ne);
-                //add element
-                //now use the FretboardDiv as it is
-                fretboard = new Vex.Flow.FretboardDiv(sel);
-                fretboard.build(fretboardLevel);
+                if(fretboardLevel !== null && fretboardLevel !== undefined && fretboardLevel != 'undefined' && fretboardLevel.length >1 ){
+                    //recreate the element
+                    var ne = angular.element('<div id="fretboardDiv"></div>');
+                    ne.text(fretboardLevel);
+                    //binding and appending
+                    $compile(ne)(scope);
+                    $(containerSel).append(ne);
+                    //add element
+                    //now use the FretboardDiv as it is
+                    fretboard = new Vex.Flow.FretboardDiv(sel);
+                    fretboard.build(fretboardLevel);
+                }
                 //recompile for showing it
                 $compile($(sel))(scope);
             }

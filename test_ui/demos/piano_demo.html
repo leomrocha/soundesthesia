@@ -146,7 +146,7 @@
                 </div>
                 <div >
                     <a class="btn btn-success" ng-click="play(true)" ng-show="!playing && turn === 'pc' && success !== true">Listen & Start</a>
-                    <a class="btn btn-success" ng-click="play(false)" ng-show="!playing && turn === 'user'">Listen</a>
+                    <a class="btn btn-success" ng-click="play(false)" ng-show="turn === 'user'">Listen</a>
                     <!--<a class="btn btn-default" ng-click="next()" ng-show="currentIndex !== 0 && !playing  && turn !== 'user'">My turn</a>-->
                     <a class="btn btn-default" ng-click="next()" ng-show="currentIndex !== 0 && playing ">Next</a>
                     <a class="btn btn-default" ng-click="next()" ng-show="currentIndex === 0 && !playing">Start</a>

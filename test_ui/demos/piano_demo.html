@@ -142,7 +142,7 @@
             <div class="drill" ng-controller="pianoDemoController">
 
                 <div >
-                    {{currentText}}
+                    <h3>{{currentText}}</h3>
                 </div>
                 <div ng-show="!playing">
                     <img ng-src="{{currentImage}}"/>
@@ -184,8 +184,8 @@
                     </div>-->
                 </div>
                 <div >
-                    <a class="btn btn-warning" ng-click="play(true)" ng-show="!playing && turn === 'pc'">Listen</a>
-                    <a class="btn btn-success" ng-click="play(false)" ng-show="!playing && turn === 'user'">Listen</a>
+                    <a class="btn btn-warning" ng-click="play(true)" ng-show="!playing && turn === 'pc' && success !== true">Listen</a>
+                    <a class="btn btn-success" ng-click="play(false)" ng-show="!playing && turn === 'user' && success !== true">Listen</a>
                     <!--<a class="btn btn-default" ng-click="next()" ng-show="currentIndex !== 0 && !playing  && turn !== 'user'">My turn</a>-->
                     <a class="btn btn-default" ng-click="next()" ng-show="currentIndex !== 0 && playing ">Next</a>
                     <a class="btn btn-default" ng-click="next()" ng-show="currentIndex === 0 && !playing">Start</a>

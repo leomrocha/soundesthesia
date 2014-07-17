@@ -948,17 +948,21 @@ pianoApp.controller('pianoDemoController', ['$scope', '$timeout', 'pubSubMIDI', 
     $scope.fail = function(){
         //Reset this level
         //Say SORRY, try again
-        $scope.currentText =  "Try again from the beginning";
+        $scope.currentText =  "Awww! You missed the last one. Try again!";
         $scope.recording = [];
     };
     
     $scope.success = function(){
-        console.log("success");
+        //console.log("success");
         $scope.next();
     };
     
     $scope.evaluate = function(){
-        console.log("recording");
+        //console.log("recording");
+        //setup text beacause might be coming from a mistake
+        $scope.currentText =  PianoDemoLevel[$scope.currentIndex]["text"];
+        $scope.parrotImageIndex = ($scope.parrotImageIndex + 1 ) % $scope.parrotImages.length;
+        $scope.parrotImage = $scope.parrotImages[$scope.parrotImageIndex];
         var fail = false;
         for(var i=0; i< $scope.recording.length; i++){
             if($scope.levelNotes[i] !== $scope.recording[i]){
@@ -969,10 +973,10 @@ pianoApp.controller('pianoDemoController', ['$scope', '$timeout', 'pubSubMIDI', 
         if(!fail && $scope.recording.length === $scope.levelNotes.length){
             $scope.success();
         }else if(fail){
+            $scope.parrotImage = "/images/V2_150.png";
             $scope.fail();
         }
-        $scope.parrotImageIndex = ($scope.parrotImageIndex + 1 ) % $scope.parrotImages.length;
-        $scope.parrotImage = $scope.parrotImages[$scope.parrotImageIndex];
+        
         
     };
     ///

@@ -842,6 +842,7 @@ pianoApp.controller('pianoDemoController', ['$scope', '$timeout', 'pubSubMIDI', 
     $scope.vextabText = PianoDemoLevel[0]["vextab"];
     $scope.playing = false;
     $scope.success = false;
+    $scope.showSubscribe = false;
     $scope.turn = "pc";
     $scope.recording = [];
     $scope.notesLevel = []; //only the midi ids for the notes
@@ -893,10 +894,12 @@ pianoApp.controller('pianoDemoController', ['$scope', '$timeout', 'pubSubMIDI', 
         $scope.currentIndex += 1;
         console.log("PianoDemoLevel.length = ", PianoDemoLevel.length);
         if($scope.currentIndex >= PianoDemoLevel.length){
-            $scope.currentImage = "/images/happy_parrot_400.png"
+            $scope.currentImage = "/images/happy_parrot_400.png";
+            $scope.showSubscribe = true;
             $scope.success = true;
             $scope.playing = false;
             $scope.vextabText = "";
+            $scope.turn = "pc";
             $scope.currentText = "You made it, Congratulations!";
         }else{
             $scope.playing = true;

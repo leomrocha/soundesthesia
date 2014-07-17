@@ -5,7 +5,7 @@ var PianoDemoLevel = [
                 {order:0,
                 vextab: "tabstave tablature=false notation=true\ntime =4/4\nnotes C-D-E-F/4 | G-A-B/4 C/5",
                 title: "Intro",
-                text: "You will have to play the melody, when you get it right I'll add a new measure!. Press Start to begin; Ready?",
+                text: "You will have to play the melody, when you get it right I'll add a new measure! Press Start to begin; Ready?",
                 play: [
                         [48,0,8],
                         [50,8,8],
@@ -58,7 +58,7 @@ var PianoDemoLevel = [
                 {order:4,
                 vextab: "tabstave tablature=false notation=true\ntime =4/4\nnotes C-D-E-F/4",
                 title: "",
-                text: "",
+                text: "We start with the first measure",
                 play: [
                         [48,0,8],
                         [50,8,8],

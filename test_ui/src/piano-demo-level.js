@@ -3,9 +3,9 @@ var PianoDemoLevel = [
                 //image
                 
                 {order:0,
-                src: "../images/demolevels/octave_piano.png", 
+                vextab: "tabstave tablature=false notation=true\ntime =4/4\nnotes C-D-E-F/4 | G-A-B/4 C/5",
                 title: "Intro",
-                text: "I'll play a melody and then you copy. Ready?",
+                text: "You will have to play the melody, when you get it right I'll add a new note! Ready?",
                 play: [
                         [48,0,8],
                         [50,8,8],
@@ -20,7 +20,7 @@ var PianoDemoLevel = [
                 //next:[0,"next", -1]
                 },
                 {order:1,
-                src: "../images/demolevels/do_piano.png", 
+                vextab: "tabstave tablature=false notation=true\ntime =4/4\nnotes C/4",
                 title: "",
                 text: "One step at a time, let's start playing a Do",
                 play: [
@@ -30,29 +30,9 @@ var PianoDemoLevel = [
                 //next: things that will activate a next: 
                 //next:[0,"next", -1]
                 },
-                {order:1,
-                src: "../images/demolevels/do_piano.png", 
-                title: "",
-                text: "It's your turn now, play a Do, don't worry, I'll wait for you",
-                play: [
-                        [48,0,16]
-                        ],
-                turn: "user"
-                //next: things that will activate a next: 
-                //next:[0,"next", -1]
-                },
-                {order:1,
-                src: "../images/demolevels/do_piano.png",  //TODO paint it in red
-                title: "",
-                text: "Great job",
-                timeout: 2,
-                turn: "pc"
-                //next: things that will activate a next: 
-                //next:[0,"next", -1]
-                },
                 {order:2,
-                src: "../images/demolevels/dore_piano.png", 
                 title: "",
+                vextab: "tabstave tablature=false notation=true\ntime =4/4\nnotes C-D/4",
                 text: "Good job",
                 play: [
                         [48,0,8],
@@ -63,7 +43,7 @@ var PianoDemoLevel = [
                 //next:[0,"next", -1]
                 },
                 {order:3,
-                src: "../images/demolevels/doremi_piano.png", 
+                vextab: "tabstave tablature=false notation=true\ntime =4/4\nnotes C-D-E/4",
                 title: "",
                 text: "",
                 play: [
@@ -76,7 +56,7 @@ var PianoDemoLevel = [
                 //next:[0,"next", -1]
                 },
                 {order:4,
-                src: "../images/demolevels/doremifa_piano.png", 
+                vextab: "tabstave tablature=false notation=true\ntime =4/4\nnotes C-D-E-F/4",
                 title: "",
                 text: "",
                 play: [
@@ -90,7 +70,7 @@ var PianoDemoLevel = [
                 //next:[0,"next", -1]
                 },
                 {order:5,
-                src: "../images/demolevels/doremifasol_piano.png", 
+                vextab: "tabstave tablature=false notation=true\ntime =4/4\nnotes C-D-E-F/4 | G/4",
                 title: "",
                 text: "",
                 play: [
@@ -105,7 +85,7 @@ var PianoDemoLevel = [
                 //next:[0,"next", -1]
                 },
                 {order:6,
-                src: "../images/demolevels/doremifasolla_piano.png", 
+                vextab: "tabstave tablature=false notation=true\ntime =4/4\nnotes C-D-E-F/4 | G-A/4",
                 title: "",
                 text: "",
                 play: [
@@ -121,7 +101,7 @@ var PianoDemoLevel = [
                 //next:[0,"next", -1]
                 },
                 {order:7,
-                src: "../images/demolevels/doremifasollasi_piano.png", 
+                vextab: "tabstave tablature=false notation=true\ntime =4/4\nnotes C-D-E-F/4 | G-A-B/4",
                 title: "",
                 text: "",
                 play: [
@@ -138,7 +118,7 @@ var PianoDemoLevel = [
                 //next:[0,"next", -1]
                 },
                 {order:8,
-                src: "../images/demolevels/octave_piano.png", 
+                vextab: "tabstave tablature=false notation=true\ntime =4/4\nnotes C-D-E-F/4 | G-A-B/4 C/5",
                 title: "End",
                 text: "And now the whole melody!",
                 play: [

@@ -108,13 +108,17 @@ pianoApp.service('pubSubMIDI', [function() {
             //call all the generic ones
             for(var j=0; j< this.registerAnyNoteOff.length; j++){
                 var sc = this.registerAnyNoteOff[j];
-                sc[0][sc[1]](midi_id);
+                try{
+                    sc[0][sc[1]](midi_id);
+                }catch(e){}
             }
             //now the specifics
             for(var i=0; i< cbacks.length; i++){
-                var cback = cbacks[i];
-                cback[0][cback[1]](); //scope.function() call
+                try{
+                    var cback = cbacks[i];
+                    cback[0][cback[1]](); //scope.function() call
                 //console.log("callback called: ", cback[0][cback[1]]);
+                }catch(e){}
             }
         }catch(err){
             console.log("error occurred: ", err);
@@ -1002,8 +1006,9 @@ pianoApp.controller('pianoDemoController', ['$scope', '$timeout', 'pubSubMIDI', 
     
     $scope.currentIndex = 0;
     
-    $scope.currentImage = PianoDemoLevel[0]["src"];
+    $scope.currentImage = "";
     $scope.currentText =  PianoDemoLevel[0]["text"];
+    $scope.vextabText = PianoDemoLevel[0]["vextab"];
     $scope.playing = false;
     $scope.turn = "pc";
     $scope.recording = [];
@@ -1051,27 +1056,38 @@ pianoApp.controller('pianoDemoController', ['$scope', '$timeout', 'pubSubMIDI', 
     };
     
     $scope.nextScreen = function(){
-        
-        
+        //if level finished: CONGRATS! and subscribe
+
         $scope.currentIndex += 1;
-        level = PianoDemoLevel[$scope.currentIndex];
-        $scope.currentImage = level["src"];
-        $scope.currentText =  level["text"];
-        $scope.recording = []; //empty previous recordings
-        
-        try{
-            $scope.levelNotes = _.map(level["play"], function(el){ return el[0]});
-            console.log('level = ', $scope.levelNotes);
-            $scope.turn = level["turn"];
-        }catch(e){
-            $scope.turn = "pc";
-        }
-        try{
-            if(level["timeout"] !== null && level["timeout"] !== undefined && level["timeout"] !== 'undefined'){
-                $timeout(function(){$scope.next();}, level["timeout"]);
+        console.log("PianoDemoLevel.length = ", PianoDemoLevel.length);
+        if($scope.currentIndex >= PianoDemoLevel.length){
+            $scope.currentImage = "/images/happy_parrot_400.png"
+            $scope.success = true;
+            $scope.playing = false;
+            $scope.vextabText = "You made it, Congratulations!";
+        }else{
+            $scope.playing = true;
+            level = PianoDemoLevel[$scope.currentIndex];
+            //console.log("level: ", level)
+            //$scope.currentImage = level["src"];
+            $scope.currentText =  level["text"];
+            $scope.vextabText =   level["vextab"];
+            $scope.recording = []; //empty previous recordings
+            
+            try{
+                $scope.levelNotes = _.map(level["play"], function(el){ return el[0]});
+                console.log('level = ', $scope.levelNotes);
+                $scope.turn = level["turn"];
+            }catch(e){
+                $scope.turn = "pc";
             }
-        }catch(e){
-            //nothing to do here, move along
+            try{
+                if(level["timeout"] !== null && level["timeout"] !== undefined && level["timeout"] !== 'undefined'){
+                    $timeout(function(){$scope.next();}, level["timeout"]);
+                }
+            }catch(e){
+                //nothing to do here, move along
+            }
         }
         
     };
@@ -1124,6 +1140,34 @@ pianoApp.controller('pianoDemoController', ['$scope', '$timeout', 'pubSubMIDI', 
         }
         
     };
+    ///
+    /*$scope.play = function(){
+        //console.log($scope);
+        //console.log("player = ");
+        //console.log($scope.player);
+        if( $scope.player !== null && $scope.player !== undefined && $scope.player !== 'undefined'){
+            //console.log("play");
+            //update player:
+            $scope.player.render();
+            $scope.playing = true;
+            //$scope.player.render();
+            //console.log($scope.player);
+            $scope.player.play();
+        }
+        
+    };
+    
+    $scope.stop = function(){
+        //console.log($scope);
+        if( $scope.player !== null && $scope.player !== undefined && $scope.player !== 'undefined'){
+            //console.log("stop");
+            $scope.playing = false;
+            $scope.player.stop();
+        }
+        
+    };*/
+    ///
+    
     //received a note OFF event
     $scope.noteOff = function(midi_id){
         console.log("calling note off");
@@ -1199,5 +1243,76 @@ pianoApp.directive('key', ['$compile', function($compile) {
   }]);
 
 
+pianoApp.directive('vextabPaper', ['$compile', function($compile) {
+    //console.log("paper starting")
+    var canvas = document.createElement('canvas');
+    canvas.className = "vex-canvas";
+    var renderer = new Vex.Flow.Renderer( canvas,
+                  //Vex.Flow.Renderer.Backends.RAPHAEL); //TODO support raphael
+                  Vex.Flow.Renderer.Backends.CANVAS);
+    var artist = new Vex.Flow.Artist(10, 10, 600, {scale: 1});
+    var player = null;
+    
+    if (Vex.Flow.Player) {
+        opts = {};
+        //if (options) opts.soundfont_url = options.soundfont_url;
+        player = new Vex.Flow.Player(artist, opts);
+        //do not show default controls - changed to default on the vextab code
+        //player.removeControls();
+    }
+    vextab = new Vex.Flow.VexTab(artist);
 
+    function link(scope, element, attrs) {
+        //update parent things:
+        scope.canvas = canvas;
+        scope.artist = artist;
+        scope.vextab = vextab;
+        scope.player = player;
+        
+        var vextabText;
+        function updateTab() {
+            //console.log("updating tab");
+            //console.log(vextabText);
+            try {
+                vextab.reset();
+                artist.reset();
 
+                vextab.parse(vextabText);
+                artist.render(renderer);
+                //console.log("artist = ", artist);
+            }
+            catch (e) {
+                console.log("Error");
+                console.log(e);
+            }      
+            $compile(canvas)(scope);
+            element.append(canvas);
+            //reposition player because something breaks on the default
+            if(player !== null && player !== undefined){
+                //console.log("player created: ", player);
+                player.fullReset(); //this is what makes the repaint correct
+                playerCanvas = element.find(".vextab-player");
+                scoreCanvas =  element.find(".vex-canvas");
+                playerCanvas.height = scoreCanvas.get(0).height;
+                //console.log(playerCanvas);
+                $compile(playerCanvas)(scope);
+            }
+        }
+
+        scope.$watch(attrs.vextabPaper, function(value) {
+            //console.log("changing vextab text to: ", value);
+            if (!(value !== null && value !== undefined)){
+                value = element.text();
+                element.text("");
+            }
+            vextabText = value;
+            updateTab();
+        });
+
+    }
+
+    return {
+        transclude:true,
+        link: link
+    };
+  }]);

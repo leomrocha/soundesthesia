@@ -144,24 +144,39 @@
                 <div >
                     {{currentText}}
                 </div>
-                <div >
+                <div ng-show="success && !playing">
                     <img ng-src="{{currentImage}}"/>
+                </div>
+                <div>
+                    <div data-vextab-paper="vextabText">
+                    </div>
+                    <!--<div class="row">
+                        <a class="btn btn-default btn-lg" ng-click="play()">
+                            <i class="fa fa-play fa-fw"></i>
+                            <span class="network-name">Play</span>
+                        </a>
+                        <a class="btn btn-default btn-lg" ng-click="stop()">
+                            <i class="fa fa-stop fa-fw"></i>
+                            <span class="network-name">Stop</span>
+                        </a>
+                    </div>-->
                 </div>
                 <div >
                     <a class="btn btn-warning" ng-click="play(true)" ng-show="!playing && turn === 'pc'">Listen</a>
                     <a class="btn btn-success" ng-click="play(false)" ng-show="!playing && turn === 'user'">Listen</a>
-                    <a class="btn btn-default" ng-click="next()" ng-show="currentIndex !== 0 && !playing  && turn !== 'user'">My turn</a>
-                    <a class="btn btn-default" ng-click="next()" ng-show="currentIndex !== 0 && !playing  && ( turn === 'user')">Next</a>
+                    <!--<a class="btn btn-default" ng-click="next()" ng-show="currentIndex !== 0 && !playing  && turn !== 'user'">My turn</a>-->
+                    <a class="btn btn-default" ng-click="next()" ng-show="currentIndex !== 0 && !playing ">Next</a>
                     <a class="btn btn-default" ng-click="next()" ng-show="currentIndex === 0 && !playing">Start</a>
                 </div>
 
             </div>
+            <div  >
+                <div class="drill" ng-controller="keyboardController">
+                    <div keyboard>
+                    Sorry, your Browser does not support HTML5, please use one of the latests Chrome or Firefox
+                    </div>
 
-            <div class="drill" ng-controller="keyboardController" >
-                <div keyboard>
-                Sorry, your Browser does not support HTML5, please use one of the latests Chrome or Firefox
                 </div>
-
             </div>
 
         </div>
@@ -201,6 +216,8 @@
     <!-- deps-->
     <script src="/assets/js/base64-binary.js"></script>
     <script src="/assets/js/MIDI.min.js"></script>
+    <script src="/assets/js/vexflow-min.js"></script>
+    <script src="/assets/js/tabdiv-min.js"></script>
     <!-- And my actual application, the order is important -->
     <script src="/src/piano_setup.js"></script>
     <script src="/src/keys_dimensions.js"></script>

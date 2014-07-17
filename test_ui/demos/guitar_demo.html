@@ -134,69 +134,44 @@
     <div class="container"  ng-app="GuitarDemo" ng-controller="guitarGameController">
 
         <div class="row">
+        
 				<div class=" col-xs-12 col-md-12 col-ld-12">
-                        
-                    <div id="demo_greeting" ng-show="screen === 'greetings'">
-                        <div class="col-xs-4 col-md-4 col-ld-4 image">
-			      			<img src="images/tabs/pic1.png" class="img-responsive" alt="picture1" />
-			      		</div>    
-			      		<div class="col-xs-8 col-md-8 col-ld-8 info">
-			      			<h4>Hi!</h4>
-			      			<p>
-			      				I'll play a melody. Do you dare to follow me.
-			      			</p>
-			      			<p>
-			      			    Don't worry if you miss, I'll wait for you to find the right note. <br/>
-			      				This is a note practice, I challenge you!
-			      			</p>
-			      			<p >
-			      				<a class="button" ng-click="acceptChallenge()" ng-show="!challengeAccepted">Challenge Accepted!</a>
-			      				
-			      			</p>
-			      			<p class="danger" ng-show="!micAllowed">
+				    <h1 class="danger" ng-show="!micAllowed">
     			      			<span class="label label-danger">
     			      			<i class="fa fa-play fa-fw"></i>
     			      			Allow  access to the microphone and play a string to test.
     			      			</span>
-			      			</p>
-			      		</div>
+			      			</h1>
+                    <div >
+                        <h3>{{currentText}}</h3>
+                    </div>
+                    <div >
+                        <a class="btn btn-success" ng-click="play(true)" ng-show="!playing && turn === 'pc' && success !== true">Listen & Start</a>
+                        <a class="btn btn-success" ng-click="play(false)" ng-show="!playing && turn === 'user'">Listen</a>
+                        <!--<a class="btn btn-default" ng-click="next()" ng-show="currentIndex !== 0 && !playing  && turn !== 'user'">My turn</a>-->
+                        <a class="btn btn-default" ng-click="next()" ng-show="currentIndex !== 0 && playing ">Next</a>
+                        <a class="btn btn-default" ng-click="next()" ng-show="currentIndex === 0 && !playing">Start</a>
+                        <div  ng-show="showSubscribe">
+                            <a href="/signup.html" class="button btn-default btn-lg" >
+                                <i class="fa fa-plus"></i>
+                                <span class="network-name">I want more!</span>
+                            </a>
+                        </div>
+                    </div>
+                    <div  class="col-sd-9 col-md-9 col-ld-9" ng-show="!playing">
+                        <img ng-src="{{currentImage}}"/>
+                    </div>                
+                    <div id="demo_greeting" ng-show="screen === 'greetings'">
+                        <div class="col-xs-4 col-md-4 col-ld-4 image">
+			      			<img src="images/tabs/pic1.png" class="img-responsive" alt="picture1" />
+			      		</div>    
 		      		</div>
 			      		
-                    <div id="demo_stats" ng-show="screen === 'game'">
-                        <div class="col-xs-3 col-md-3 col-ld-3 image">
-                            TODO stats image
-		          			<img src="images/tabs/pic1.png" class="img-responsive" alt="picture1" />
-		          		</div>    
-		          		<div class="col-xs-3 col-md-3 col-ld-3 image">
-		          			<p>
-		          				Note Points
-		          			</p>
-		          			<p>
-		          			</p>
-		          		</div>
-		          		<div class="col-xs-3 col-md-3 col-ld-3 image">
-		          			<p>
-		          				Time points:
-		          			</p>
-		          			<p>
-		          			</p>
-		          		</div>
-		          		<div class="col-xs-3 col-md-3 col-ld-3 image">
-		          			<p class="btn btn-danger" ng-show="turn === 'pc'">
-		          				My turn
-		          			</p>
-		          			<p class="btn btn-success" ng-show="turn === 'user'">
-		          			    Your turn
-		          			</p>
-		          		</div>
-		      		</div>
-			  		
-                        
 				</div>
 				
 				<div class=" col-xs-12 col-md-12 col-ld-12">
                     <div class="row">
-                        <div data-vextab-paper="vextabLevel">
+                        <div data-vextab-paper="vextabText">
                         </div>
                     </div>
                     <div class="row">
@@ -253,7 +228,7 @@
     <script src="/src/keys_dimensions.js"></script>
     <script src="/src/keyboard_mappings.js"></script>
     <script src="/src/notes_info.js"></script>
-    <script src="/src/demolevel.js"></script>
+    <script src="/src/guitar-demo-level.js"></script>
     <script src="/src/guitar_demo.js"></script>
 
 

@@ -845,7 +845,7 @@ pianoApp.controller('pianoDemoController', ['$scope', '$timeout', 'pubSubMIDI', 
     $scope.showSubscribe = false;
     $scope.turn = "pc";
     $scope.recording = [];
-    $scope.notesLevel = []; //only the midi ids for the notes
+    $scope.levelNotes = []; //only the midi ids for the notes
     //$scope.state = "greeting";
     
     //makes the actions that needs to be done for this screen

@@ -156,7 +156,7 @@ guitarDemo.service('micCaptureService', ['$timeout', function($timeout) {
     OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
     SOFTWARE.
     */
-    console.log("seting up micCaptureService");
+    //console.log("seting up micCaptureService");
    
     //rename this for avoiding conflicts later
     this.self = this;
@@ -197,7 +197,7 @@ guitarDemo.service('micCaptureService', ['$timeout', function($timeout) {
     self.callback = null;
     //reister a callback to make on each detection
     this.registerCallback = function(scope, callback){
-        console.log("registering callback");
+        //console.log("registering callback");
         self.callback = scope[callback];
     };
     
@@ -385,7 +385,7 @@ guitarDemo.service('micCaptureService', ['$timeout', function($timeout) {
     
     
     this.start = function(){
-        console.log("starting  from the service");
+        //console.log("starting  from the service");
         //TODO check that it actualy is ready, or wait ... use $q.defer
         self.startCapturing();
         
@@ -431,7 +431,7 @@ guitarDemo.service('midiService', ['pubSubMIDI', function(pubSubMIDI) {
     //things to be able to play
     //TODO make the calls more general, although for the moment this works
     this.playNote= function(midi_id){
-        console.log("calling midi service note on: ", midi_id);
+        //console.log("calling midi service note on: ", midi_id);
         if(! this.notesStatus[midi_id] === true){
             this.notesStatus[midi_id] = true;
             MIDI.noteOn(0, midi_id, 127, 0);
@@ -439,7 +439,7 @@ guitarDemo.service('midiService', ['pubSubMIDI', function(pubSubMIDI) {
     };
     
     this.stopNote= function(midi_id){
-        console.log("calling midi service note off: ", midi_id);
+        //console.log("calling midi service note off: ", midi_id);
         if(this.notesStatus[midi_id] === true){
             this.notesStatus[midi_id] = false;
             MIDI.noteOff(0, midi_id, 0);
@@ -500,164 +500,171 @@ guitarDemo.service('midiRecorderService', ['pubSubMIDI', function(pubSubMIDI) {
   
 guitarDemo.controller('guitarGameController', ['$scope', '$timeout', 'pubSubMIDI', 'micCaptureService', function($scope, $timeout, pubSubMIDI, micService) {
     ////////////////////
-    console.log("guitar game controller starting");
-    //sound state:
-    $scope.micAllowed = false;
+    //console.log("guitar game controller starting");
+  
+    $scope.currentIndex = 0;
+    $scope.parrotImages = [ "/images/parrot_piano_150.png",
+                            "/images/V5_150.png",
+                            "/images/V1_150.png",
+                            "/images/V3_150.png"
+                            ];
+    $scope.parrotImageIndex = 0;
+    $scope.currentImage = "";
+    $scope.parrotImage = $scope.parrotImages[$scope.parrotImageIndex];
+    $scope.currentText =  GuitarDemoLevel[0]["text"];
+    $scope.vextabText = GuitarDemoLevel[0]["vextab"];
+    $scope.fretboardLevel = GuitarDemoLevel[0]["fretboard"];
+    $scope.playing = false;
+    $scope.success = false;
+    $scope.showSubscribe = false;
+    $scope.turn = "pc";
+    $scope.recording = [];
+    $scope.levelNotes = []; //only the midi ids for the notes
+    //$scope.state = "greeting";
     
-    //game states
-    $scope.screens = {
-                    0: 'greetings',
-                    1: 'game',
-                    2: 'fail',
-                    3: 'success'
-                    };
+    //makes the actions that needs to be done for this screen
+    
+    $scope.beginWaitFinished = function(){
+        ///////////////////////////////////////
+        //intro
+        var pattern = GuitarDemoLevel[0]["play"];
+        $scope.playing = true;
+        simplePlayer.play(pattern, $scope, "playFinished");        
+        ///////////////////////////////////////
+    };
+    
+    $scope.showScreen = function(){
+    
+    };
+    
+    //this is UGLY
+    $scope.goNextAfterPlay = false;
+    $scope.playFinished = function(){
+        //TODO change state to recording and start the game
+        //console.log("callback ok");
+        //$scope.next();
+        $scope.playing = false;
+        if($scope.goNextAfterPlay){
+            $scope.next();
+        }
+        $scope.goNextAfterPlay = false;
+    };
+    
+    $scope.act = function(){
+        //this is 
+        //console.log("acting");
+        if($scope.currentIndex === 0 ){
+            //console.log("play");
+            $timeout(function(){$scope.beginWaitFinished()}, 1500);
             
-    $scope.screen = 'greetings';
-    /*
-    $scope.states = {
-                        $scope.screens[0] : {
-                            
-                        },
-                        $scope.screens[1] : {
-                            0: "showing",
-                            1: "recording"
-                        },
-                        $scope.screens[2] : {
-                        
-                        },
-                        $scope.screens[3] : {
-                        
-                        }
-                    };
-    */
-    $scope.challengeAccepted = false;
-    $scope.state = '';
+        }else if($scope.currentIndex === 1 ){
+        
+        }
+    };
     
-    $scope.turn = 'pc'; //'pc' or 'user'
-    
-    //Level and stage: TODO
-    $scope.level = DemoLevel;
-    $scope.stage = 0;
-    //this keeps the value for vextab to 
-    //$scope.vextabLevel = 
-    $scope.vextabLevel = $scope.level[$scope.stage][0];
-    $scope.fretboardLevel = $scope.level[$scope.stage][1];
-    
-    //recordings
-    $scope.pc_recording = [];
-    $scope.user_recording = [];
-    
-    
-    //play/stop sound
-    $scope.play = function(){
-        if( $scope.player !== null && $scope.player !== undefined && $scope.player !== 'undefined'){
-            console.log("player");
-            
-            $scope.player.setInstrument("acoustic_guitar_steel");
-            //update player:
-            console.log("render player");
-            $scope.player.render();
-            $scope.playing = true;
-            //$scope.player.render();
-            //console.log($scope.player);
-            $scope.player.play();
-            //$scope.player.start();
+    $scope.nextScreen = function(){
+        //if level finished: CONGRATS! and subscribe
+
+        $scope.currentIndex += 1;
+        //console.log("GuitarDemoLevel.length = ", GuitarDemoLevel.length);
+        if($scope.currentIndex >= GuitarDemoLevel.length){
+            $scope.currentImage = "/images/happy_parrot_400.png";
+            $scope.showSubscribe = true;
+            $scope.success = true;
+            $scope.playing = false;
+            $scope.vextabText = "";
+            $scope.fretboardLevel = "";
+            $scope.turn = "pc";
+            $scope.currentText = "You made it, Congratulations!";
         }else{
-            console.log("ERROR: No sound player found!!");
-        }
-        
-    };
-    
-    $scope.stop = function(){
-            //console.log($scope);
-            if( $scope.player !== null && $scope.player !== undefined && $scope.player !== 'undefined'){
-                //console.log("stop");
-                $scope.playing = false;
-                $scope.player.stop();
-            }else{
-            console.log("ERROR: No sound player found!!");
-        }
+            $scope.playing = true;
+            level = GuitarDemoLevel[$scope.currentIndex];
+            //console.log("level: ", level)
+            //$scope.currentImage = level["src"];
+            $scope.currentText =  level["text"];
+            $scope.vextabText =   level["vextab"];
+            $scope.fretboardLevel = level["fretboard"];
+            $scope.recording = []; //empty previous recordings
             
-        };
-    //
-    
-    $scope.pcPlays = function(){
-        //TODO set recording to pc recording
-        //TODO play the level
-        console.log("playing");
-        $scope.play();
-        console.log("finished playing");
-        //TODO pass the turn to the user
-        $scope.turn = 'user';
-    };
-    
-    $scope.nextStage = function(){
-        //cleanup state
-        $scope.turn = 'pc';
-        $scope.stage += 1;
-        $scope.pc_recording = [];
-        $scope.user_recording = [];
-        $scope.vextabLevel = $scope.level[$scope.stage];
-        //launch play
-        $scope.pcPlays();
-    };
-    
-    $scope.playGame = function(){
-        //TODO 
-        //reset vars
-        $scope.stage = -1;
-        $scope.nextStage();
-        
-        //for each stage in the level
-        //  while the guy did not loose or the level didn't finish
-        //      setup all the things to blank (but the points, there we will be incrementing
-        //      setup new music sheet
-        //      set recording pc pattern to true
-        //      play the music sheet
-        //      set recording pc pattern to false
-        //      set turn to user
-        //      for every note received
-        //      compare results
-        //      if OK, increment points
-        //      if not OK, sorry you missed
-        //  if the stage was good, congratulate, say it's my turn
-        //  recover the next stage
-        //  
-        //        
-    };
-    //this function decides what to do in the game state dynamics
-    //result: is extra data that will help the function to decide what state follows
-    $scope.nextState = function(result){
-        if($scope.screen === "greetings"){
-            $scope.screen = 'game';
-            $scope.playGame();
-        }else if($scope.screen === "game"){
-            //TODO close all the things
-            if (result === null || result === 'undefined' || result === undefined){
-                //nothing to do here, move along
-            }else if(result === 'success'){
-                $scope.screen = "sucess";
-                //TODO setup everything
-            }else {
-                $scope.screen = "fail";
-                //TODO setup everything
+            try{
+                $scope.levelNotes = _.map(level["play"], function(el){ return el[0]});
+                //console.log('level = ', $scope.levelNotes);
+                $scope.turn = level["turn"];
+            }catch(e){
+                $scope.turn = "pc";
             }
-        }else if($scope.screen === "fail"){
-            //TODO   
-        }else if($scope.screen === "success"){
-            //TODO   
+            try{
+                if(level["timeout"] !== null && level["timeout"] !== undefined && level["timeout"] !== 'undefined'){
+                    $timeout(function(){$scope.next();}, level["timeout"]);
+                }
+            }catch(e){
+                //nothing to do here, move along
+            }
+        }
+        
+    };
+
+    $scope.next = function(){
+        //TODO finish
+        $scope.nextScreen();
+    };
+    
+    $scope.previous = function(){
+    
+    };
+    
+    $scope.play = function(nextAfterPlay){
+        try{
+            var pattern = GuitarDemoLevel[$scope.currentIndex]["play"];
+            $scope.playing = true;
+            $scope.goNextAfterPlay = nextAfterPlay;
+            simplePlayer.play(pattern, $scope, "playFinished");
+        }catch(e){
+            //it can not be played
         }
     };
+    
+    $scope.fail = function(){
+        //Reset this level
+        //Say SORRY, try again
+        $scope.currentText =  "Awww! You missed the last one. Try again!";
+        $scope.recording = [];
+    };
+    
+    $scope.success = function(){
+        console.log("success");
+        $scope.next();
+    };
+    
+    $scope.evaluate = function(midi_id){
+        console.log("evaluating ", midi_id);
+        console.log("$scope.levelNotes = ", $scope.levelNotes);
+        //setup text beacause might be coming from a mistake
+        $scope.currentText =  GuitarDemoLevel[$scope.currentIndex]["text"];
+        $scope.parrotImageIndex = ($scope.parrotImageIndex + 1 ) % $scope.parrotImages.length;
+        $scope.parrotImage = $scope.parrotImages[$scope.parrotImageIndex];
+        //evaluate if the note played is the one that should be played
+        var cindex = $scope.recording.length;
+        console.log(cindex);
+        console.log("$scope.levelNotes[cindex] = ", $scope.levelNotes[cindex]);
+        if(cindex >=0 && $scope.levelNotes[cindex] === midi_id){
+            console.log("notes matches, appending: ", midi_id);
+            $scope.recording.push(midi_id);
+        }
+        if($scope.recording.length === $scope.levelNotes.length){
+            $scope.success();
+        }
+        
+        
+    };
+    
     //function to setup as callback to the micService
     $scope.micReceiverCallback = function(note){
         if(!$scope.micAllowed){
+            console.log("mic allowed now!");
             $scope.micAllowed = true;
-        }else if($scope.challengeAccepted && $scope.screen === "greetings"){
-            $scope.nextState();
-        }else if($scope.screen === "game"){
-            //TODO   
-            //if state is recording mic input, forward the input to the recorder
-            //if the state is another, do nothing
+        }else{
+            $scope.evaluate(note.note);
         }
         console.log("received note = ", note)
     };
@@ -666,49 +673,19 @@ guitarDemo.controller('guitarGameController', ['$scope', '$timeout', 'pubSubMIDI
     micService.registerCallback($scope, 'micReceiverCallback');
     micService.start();
     
-    $scope.acceptChallenge = function(){
-        $scope.challengeAccepted = true;
-        
-    };
     //received a note ON event
-    //TODO make this happen in the next iteration of the game, when times are taken in account
     $scope.noteOn = function(midi_id){
-        //TODO
-        //measure time from the beginning
-        //save in cache (note, start_time, some other info?)
-        //the following is a basic functionality to be changed when the more advanced one is implemented
-        if( $scope.turn == "pc"){
-            //TODO find a way to actually make the timestamp relative to the first note
-            $scope.pc_recording.push([midi_id, new Date().getTime(), null]);
-        }
-    }
-    
-    //received a note OFF event
-    $scope.noteOff = function(midi_id){
-        //TODO
-        //find the note that was being played,
-        //measure duration
-        //save in record (note, start_time, end_time, duration, some other info?)
-        //console.log("recording in game note: ", midi_id);
-
-        if( $scope.turn == "pc"){
-            //assume we ar recording to the last element (only one note at a time)
-            //anyway, control it
-            var pos = $scope.pc_recording.length - 1;
-            if( $scope.pc_recording[pos][0] === midi_id){
-                //record duration
-                $scope.pc_recording[pos][2] = new Date().getTime() - $scope.pc_recording[pos][1];
-            }else{
-                console.log("couldn't save the end time for the note: ", midi_id);
-            }
-        }
-        //console.log("end recording");
-    }
+        console.log("receiving note by note_on: ", midi_id);
+        //$scope.recording.push(midi_id);
+        //console.log("recorded");
+        $scope.evaluate(midi_id);
+        //console.log("evaluated");
+    };
     //register services
     //console.log(pubSubMIDI);
-    //TODO reconnect when more advanced features taken in account (tempo for example)
     pubSubMIDI.subscribeAnyNoteOn($scope, "noteOn");
-    pubSubMIDI.subscribeAnyNoteOff($scope, "noteOff");
+    //pubSubMIDI.subscribeAnyNoteOff($scope, "noteOff");
+    //micService.init();
     
 }]);
 
@@ -744,17 +721,13 @@ guitarDemo.directive('vextabPaper', ['$compile', function($compile) {
         
         var vextabLevel;
         function updateTab() {
-            console.log("updating tab");
             //console.log(vextabLevel);
             try {
                 vextab.reset();
                 artist.reset();
 
                 vextab.parse(vextabLevel);
-                console.log("updating tab 3");
                 artist.render(renderer);
-                console.log("updating tab 4");
-                console.log("artist = ", artist);
             }
             catch (e) {
                 console.log("Error", e);
@@ -767,20 +740,6 @@ guitarDemo.directive('vextabPaper', ['$compile', function($compile) {
                 player.fullReset(); //this is what makes the repaint correct
                 playerCanvas = element.find(".vextab-player");
                 scoreCanvas =  element.find(".vex-canvas");
-                //console.log("canvas = ", scoreCanvas);
-                //console.log(scoreCanvas.get(0).offsetTop);
-                //console.log(scoreCanvas.get(0).offsetLeft);
-                //playerCanvas.css("position", "absolute")
-                //            .css("z-index", 10)
-                //            //.css("top", scoreCanvas.get(0).offsetTop)
-                //            //.css("left", scoreCanvas.get(0).offsetLeft)
-                //            .css("top", 45)
-                //            .css("left", 15)
-                //            .css
-                //            ;
-                //playerCanvas.width = ;
-                //update canvas height
-                //console.log(playerCanvas);
                 playerCanvas.height = scoreCanvas.get(0).height;
                 //console.log(playerCanvas);
                 $compile(playerCanvas)(scope);

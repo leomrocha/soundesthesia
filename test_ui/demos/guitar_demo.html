@@ -8,6 +8,8 @@
 
 	<!-- stylesheets -->
 	<link rel="stylesheet" type="text/css" href="/css/compiled/theme.css">
+	<link rel="stylesheet" type="text/css" href="/css/bootstrap/bootstrap.min.css">
+    <link href="/font-awesome/css/font-awesome.min.css" rel="stylesheet">
 
 	<style type="text/css">
          a:hover {
@@ -102,9 +104,9 @@
 			        <span class="icon-bar"></span>
 			        <span class="icon-bar"></span>
 		      	</button>
-      			<a href="/index.html" class="navbar-brand">Soundnesthesia</a>
+      			<a href="/index.html" class="navbar-brand">InteractifMusic</a>
     		</div>
-    		<nav class="collapse navbar-collapse bs-navbar-collapse" role="navigation">
+    		<!--<nav class="collapse navbar-collapse bs-navbar-collapse" role="navigation">
       			<ul class="nav navbar-nav navbar-right">
       				<li class="dropdown">
         				<a href="#" class="dropdown-toggle" data-toggle="dropdown">
@@ -127,7 +129,7 @@
           				</a>
         			</li>
       			</ul>
-    		</nav>
+    		</nav>-->
   		</div>
 	</header>
 
@@ -139,7 +141,7 @@
 				    <h1 class="danger" ng-show="!micAllowed">
     			      			<span class="label label-danger">
     			      			<i class="fa fa-play fa-fw"></i>
-    			      			Allow  access to the microphone and play a string to test.
+    			      			Allow  access to the microphone and play a string to start.
     			      			</span>
 			      			</h1>
                     <div >
@@ -153,7 +155,6 @@
                         <a class="btn btn-default" ng-click="next()" ng-show="currentIndex === 0 && !playing">Start</a>
                         <div  ng-show="showSubscribe">
                             <a href="/signup.html" class="button btn-default btn-lg" >
-                                <i class="fa fa-plus"></i>
                                 <span class="network-name">I want more!</span>
                             </a>
                         </div>
@@ -162,20 +163,32 @@
                         <img ng-src="{{currentImage}}"/>
                     </div>                
 				</div>
-				
-				<div class=" col-xs-12 col-md-12 col-ld-12">
-                    <div class="row">
-                        <div data-vextab-paper="vextabText">
+				<div class="row">
+				    <div class=" col-xs-8 col-md-8 col-ld-8">
+				        
+                        <div class="row">
+                            <div data-vextab-paper="vextabText">
+                            </div>
                         </div>
-                    </div>
-                    <div class="row">
-                        <div data-fretboard-paper="fretboardLevel" id="fretboardContainer">
-                            <div id="fretboardDiv"></div>
-                            <div id="dummyDiv"></div>
+                        <div class="row" ng-show="turn === 'user'">
+                            <div  class="col-sd-3 col-md-3 col-ld-3">
+                            </div>
+                            <div  class="col-sd-9 col-md-9 col-ld-9">
+				                <span class="inline" ng-repeat = "check in checklist track by $index">
+                                    <span ng-if="check !== true"  class="label label-warning" ><i  class="fa fa-square-o"></i></span>
+                                    <span ng-if="check === true" class="label label-success"><i  class="fa fa-check-square-o class success"></i></span>
+                                </span>
+                            </div>
+				        </div>
+                        <div class="row">
+                            <div data-fretboard-paper="fretboardLevel" id="fretboardContainer">
+                                <div id="fretboardDiv"></div>
+                                <div id="dummyDiv"></div>
+                            </div>
                         </div>
-                    </div>
 
-				</div>
+				    </div>
+			    </div>
 			</div>
 
 

@@ -1,8 +1,7 @@
 //console.log("loading demo level");
 var GuitarDemoLevel = [
                 //image
-                
-                {order:0,
+                /*{order:0,
                 vextab: "tabstave notation=true time=4/4\n notes 5-8/6 5-7/5 | 5-7/4 5-7/3 | 5-8/2 5-8/1",
                 fretboard: "fretboard\nshow frets=5,8 strings=1,2,6\n show frets=5,7 strings=3,4,5\n show fret=5 string=6 text=A\n show fret=7 string=4 text=A\n show fret=5 string=1 text=A",
                 title: "Intro",
@@ -20,6 +19,22 @@ var GuitarDemoLevel = [
                         [67,68,8],
                         [69,74,8],
                         [72,82,8]
+                        ],
+                turn: "pc"
+                //next:[0,"next", -1]
+                },*/
+                {order:0,
+                vextab: "tabstave notation=true time=4/4\n notes 5-8/6 5-7/5 | 5-7/4 ",
+                fretboard: "fretboard\nshow frets=5,8 string=6\n show frets=5,7 strings=4,5\n show fret=5 string=6 text=A\n show fret=7 string=4 text=A",
+                title: "Intro",
+                text: "Lets play a pentatonic scale!",
+                play: [
+                        [45,0,8],
+                        [48,8,8],
+                        [50,16,8],
+                        [52,24,8],
+                        [55,32,8],
+                        [57,40,8]
                         ],
                 turn: "pc"
                 //next:[0,"next", -1]
@@ -76,7 +91,7 @@ var GuitarDemoLevel = [
                 vextab: "tabstave notation=true time=4/4\n notes 5-8/6 5-7/5 | 5-7/4 ",
                 fretboard: "fretboard\n show frets=5,7 string=5\nshow fret=5 string=6 color=green\nshow fret=7 string=4 color=green\nshow fret=8 string=6 color=red\nshow frets=5,7 string=5 color=red\nshow fret=5 string=4 color=red",
                 title: "Intro",
-                text: "You are doing great!",
+                text: "And the whole pentatonic scale!",
                 play: [
                         [45,0,8],
                         [48,8,8],
@@ -87,7 +102,7 @@ var GuitarDemoLevel = [
                         ],
                 turn: "user"
                 //next:[0,"next", -1]
-                },{order:6,
+                }/*,{order:6,
                 vextab: "tabstave notation=true time=4/4\n notes 5-8/6 5-7/5 | 5-7/4 5-7/3",
                 fretboard: "fretboard\n show frets=5,7 string=5\nshow fret=5 string=6 color=green\nshow fret=7 string=4 color=green\nshow fret=8 string=6 color=red\nshow frets=5,7 string=5 color=red\nshow fret=5 string=4 color=red\nshow frets=5,7 string=3 color=red",
                 title: "Intro",
@@ -144,6 +159,6 @@ var GuitarDemoLevel = [
                         ],
                 turn: "user"
                 //next:[0,"next", -1]
-                }
+                }*/
                 
 ];

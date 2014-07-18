@@ -593,6 +593,7 @@ guitarDemo.controller('guitarGameController', ['$scope', '$timeout', 'pubSubMIDI
     $scope.turn = "pc";
     $scope.recording = [];
     $scope.levelNotes = []; //only the midi ids for the notes
+    $scope.checklist = [];
     //$scope.state = "greeting";
     
     //makes the actions that needs to be done for this screen
@@ -658,11 +659,17 @@ guitarDemo.controller('guitarGameController', ['$scope', '$timeout', 'pubSubMIDI
             $scope.vextabText =   level["vextab"];
             $scope.fretboardLevel = level["fretboard"];
             $scope.recording = []; //empty previous recordings
+            $scope.checklist = []; //empty checklist
             
             try{
                 $scope.levelNotes = _.map(level["play"], function(el){ return el[0]});
                 //console.log('level = ', $scope.levelNotes);
                 $scope.turn = level["turn"];
+                for(i=0; i<$scope.levelNotes.length; i++){
+                    console.log("Adding elements to checklist");
+                    $scope.checklist.push(false);
+                }
+
             }catch(e){
                 $scope.turn = "pc";
             }
@@ -721,6 +728,8 @@ guitarDemo.controller('guitarGameController', ['$scope', '$timeout', 'pubSubMIDI
         //evaluate if the note played is the one that should be played
         var cindex = $scope.recording.length;
         if(cindex >=0 && $scope.levelNotes[cindex] === midi_id){
+            console.log("evaluating and adding checklist")
+            $scope.checklist[$scope.recording.length] = true;
             $scope.recording.push(midi_id);
         }
         if($scope.recording.length === $scope.levelNotes.length){
@@ -735,7 +744,7 @@ guitarDemo.controller('guitarGameController', ['$scope', '$timeout', 'pubSubMIDI
         if(!$scope.micAllowed){
             //console.log("mic allowed now!");
             $scope.micAllowed = true;
-        }else{
+        }else if($scope.turn === "user"){
             $scope.evaluate(note.note);
         }
     };
